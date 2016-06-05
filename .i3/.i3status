@@ -1,0 +1,74 @@
+general {
+	output_format = "none"
+	colors = true
+	interval = 1
+	color_good = "#ffffff"
+	color_degraded = "#692E81"
+	color_bad = "#B00000"
+}
+
+#order += "ipv6"
+order = "cpu_usage"
+order += "wireless wlan0"
+order += "disk /"
+order += "run_watch DHCP"
+#order += "run_watch VPN"
+order += "ethernet eth0"
+order += "battery 1"
+#order += "cpu_temperature 0"
+order += "load"
+order += "volume master"
+order += "time"
+
+wireless wlan0 {
+	format_up = "W: (%quality at %essid, %bitrate) %ip"
+	format_down = "W: down"
+}
+
+ethernet eth0 {
+	# if you use %speed, i3status requires the cap_net_admin capability
+	format_up = "E: %ip (%speed)"
+	format_down = "E: down"
+}
+
+battery 1 {
+	format = "%status %percentage %remaining"
+	path = "/sys/class/power_supply/BAT%d/uevent"
+}
+
+run_watch DHCP {
+	pidfile = "/var/run/dhclient*.pid"
+}
+
+run_watch VPN {
+	pidfile = "/var/run/vpnc/pid"
+}
+
+time {
+	format = "%Y-%m-%d %H:%M:%S"
+}
+
+load {
+	format = "%5min"
+}
+
+cpu_temperature 0 {
+	format = "T: %degrees °C"
+#	path = "/sys/devices/platform/coretemp.0/temp1_input"
+}
+
+cpu_usage {
+	format = "%usage"
+}
+
+disk "/" {
+	format = "%free"
+}
+
+volume master {
+	format = "♪: %volume"
+	device = "default"
+	mixer = "Master"
+	mixer_idx = 0
+}
+

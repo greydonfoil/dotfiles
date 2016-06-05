@@ -1,0 +1,247 @@
+# Cal's screenrc
+#
+# (Mostly cribbed from Brady)
+
+# no annoying visible bell, please
+vbell off
+
+# detach on hangup
+autodetach on
+
+# don't display the copyright page
+startup_message off
+
+# emulate .logout message
+pow_detach_msg "Screen session of \$LOGNAME \$:cr:\$:nl:ended."
+
+# make the shell in every window a login shell
+#shell -$SHELL
+
+# autoaka testing
+# shellaka '> |tcsh'
+# shellaka '$ |sh'
+
+defscrollback 200000
+
+# don't kill window after the process died
+# zombie "^["
+
+# resize window to fit the current screen
+fit
+
+
+################
+#
+# keybindings
+#
+
+# ^O seems to do a lot less by default than ^A does
+escape ^Oo
+
+# Allow F1 as an alternate to ^O
+#bindkey -k k1 command
+
+#remove some stupid / dangerous key bindings
+bind k
+bind ^k
+bind .
+bind ^\
+bind \\
+bind ^h
+bind h
+#make them better
+bind 'Q' quit # kill ALL windows and exit screen
+bind 'K' kill # kill current window
+bind 'I' login on
+bind 'O' login off
+bind '}' history
+
+
+# command-tab to toggle between last window, a bit like alt-tab in many window managers
+# (doesn't seem to work)
+#bind "\011" other
+
+
+# Scroll mode key bindings
+
+# Make navigation in scroll mode much more emacs-like
+# C-a and C-e for start/end of line
+markkeys "0=^a:\$=^e"
+# Special hack for C-e, since it should go *past* the last char. -m means this is for copy mode only.
+bindkey -m ^e stuff "$^f"
+# C-z and C-v for page up/down (C-z is just used as a destination for the M-v binding below)
+markkeys "^b=^z:^f=^v"
+# Update the page up/down key binding for the new keys
+bindkey -m -k kN stuff "^v"
+bindkey -m -k kP stuff "^z"
+# M-v link to the C-z for page down
+bindkey -m "^[v" stuff "^z"
+# M-< and M-> for start/end of buffer
+bindkey -m "^[<" stuff "g"
+bindkey -m "^[>" stuff "G"
+# C-p and C-n for up/down single line
+##markkeys "j=^n:k=^p"
+# C-b and C-f for back/forward single char
+##markkeys "h=^b:l=^f"
+# M-b and M-f for back/forward a word at a time
+bindkey -m "^[f" stuff "e"
+bindkey -m "^[b" stuff "b"
+# Start/end marking with C-space
+#markkeys " =^ "
+
+
+# When you hit PageUp while not in copy mode, switch to copy mode
+bindkey -k kP copy
+
+
+# Yet another hack:
+# Prepend/append register [/] to the paste if ^a^] is pressed.
+# This lets me have autoindent mode in vi.
+# register [ "\033:se noai\015a"
+# register ] "\033:se ai\015a"
+# bind ^] paste [.]
+
+
+# make search case-insensitve
+ignorecase on
+
+
+###################################################################
+# Get the title to pass through
+# hardstatus [on|off]
+#
+# Toggles the use of the terminal's hardware status line. If
+# "on", screen will use this facility to display one line mes-
+# sages. Otherwise these messages are overlayed in reverse
+# video mode at the display line. Note that the hardstatus
+# feature can only be used if the termcap/terminfo capabili-
+# ties "hs", "ts", "fs" and "ds" are set properly. 
+# Default is `on' whenever the "hs" capability is present.
+#
+# hardstatus alwaysignore
+# hardstatus alwayslastline "%w"
+# caption always "%3n %t%? @%u%?%? [%h]%?"
+hardstatus on
+hardstatus string "%h"
+
+# advertise hardstatus support to $TERMCAP
+# termcapinfo  * '' 'hs:ts=\E_:fs=\E\\:ds=\E_\E\\'
+
+# set every new window's hardstatus line to somenthing descriptive
+# defhstatus "screen: ^En (^Et)"
+
+
+
+################
+#
+# xterm tweaks
+#
+
+#xterm understands both im/ic and doesn't have a status line.
+#Note: Do not specify im and ic in the real termcap/info file as
+#some programs (e.g. vi) will not work anymore.
+termcap xterm hs@:cs=\E[%i%d;%dr:im=\E[4h:ei=\E[4l
+terminfo xterm hs@:cs=\E[%i%p1%d;%p2%dr:im=\E[4h:ei=\E[4l
+
+#80/132 column switching must be enabled for ^AW to work
+#change init sequence to not switch width
+termcapinfo xterm Z0=\E[?3h:Z1=\E[?3l:is=\E[r\E[m\E[2J\E[H\E[?7h\E[?1;4;6l
+
+# Make the output buffer large for (fast) xterms.
+termcapinfo xterm* OL=10000
+
+# tell screen that xterm can switch to dark background and has function
+# keys.
+termcapinfo xterm 'VR=\E[?5h:VN=\E[?5l'
+termcapinfo xterm 'k1=\E[11~:k2=\E[12~:k3=\E[13~:k4=\E[14~'
+termcapinfo xterm 'kh=\E[1~:kI=\E[2~:kD=\E[3~:kH=\E[4~:kP=\E[H:kN=\E[6~'
+
+# special xterm hardstatus: use the window title.
+# termcapinfo xterm 'hs:ts=\E]2;:fs=\007:ds=\E]0;screen\@$host007'
+#termcapinfo xterm 'hs:ts=\E]2;:fs=\007:ds=\E]0;screen\@chat.net007'
+#termcapinfo xterm 'hs:ts=\E]2;:fs=\007:ds=\E]'
+
+# our xterm has colors! (rxvt, too)
+termcap xterm 'AF=\E[3%dm:AB=\E[4%dm'
+terminfo xterm 'AF=\E[3%p1%dm:AB=\E[4%p1%dm'
+
+#terminfo xterm 'vb=\E[?5h$<200/>\E[?5l'
+termcapinfo xterm 'vi=\E[?25l:ve=\E[34h\E[?25h:vs=\E[34l'
+
+# emulate part of the 'K' charset
+termcapinfo xterm 'XC=K%,%\E(B,[\304,\\\\\326,]\334,{\344,|\366,}\374,~\337'
+
+# xterm-52 tweaks:
+# - uses background color for delete operations
+termcapinfo xterm ut
+
+
+################
+#
+# wyse terminals
+#
+
+#wyse-75-42 must have flow control (xo = "terminal uses xon/xoff")
+#essential to have it here, as this is a slow terminal.
+termcapinfo wy75-42 xo:hs@
+
+# New termcap sequences for cursor application mode.
+termcapinfo wy* CS=\E[?1h:CE=\E[?1l:vi=\E[?25l:ve=\E[?25h:VR=\E[?5h:VN=\E[?5l:cb=\E[1K:CD=\E[1J
+
+
+################
+#
+# vt100 tweaks
+#
+
+#vt100 understands both im/ic and doesn't have a status line.
+#Note: Do not specify im and ic in the real termcap/info file as
+#some programs (e.g. vi) will not work anymore.
+termcap vt100 hs@:cs=\E[%i%d;%dr:im=\E[4h:ei=\E[4l
+terminfo vt100 hs@:cs=\E[%i%p1%d;%p2%dr:im=\E[4h:ei=\E[4l
+
+#80/132 column switching must be enabled for ^AW to work
+#change init sequence to not switch width
+termcapinfo vt100 Z0=\E[?3h:Z1=\E[?3l:is=\E[r\E[m\E[2J\E[H\E[?7h\E[?1;4;6l
+
+# Make the output buffer large for (fast) vt100s.
+termcapinfo vt100* OL=10000
+
+# tell screen that vt100 can switch to dark background and has function
+# keys.
+termcapinfo vt100 'VR=\E[?5h:VN=\E[?5l'
+termcapinfo vt100 'k1=\E[11~:k2=\E[12~:k3=\E[13~:k4=\E[14~'
+termcapinfo vt100 'kh=\E[1~:kI=\E[2~:kD=\E[3~:kH=\E[4~:kP=\E[H:kN=\E[6~'
+
+# special vt100 hardstatus: use the window title.
+termcapinfo vt100 'hs:ts=\E]2;:fs=\007:ds=\E]0;screen@c...\007'
+
+# our vt100 has colors! (rxvt, too)
+termcap vt100 'AF=\E[3%dm:AB=\E[4%dm'
+terminfo vt100 'AF=\E[3%p1%dm:AB=\E[4%p1%dm'
+
+#terminfo vt100 'vb=\E[?5h$<200/>\E[?5l'
+termcapinfo vt100 'vi=\E[?25l:ve=\E[34h\E[?25h:vs=\E[34l'
+
+# emulate part of the 'K' charset
+termcapinfo vt100 'XC=K%,%\E(B,[\304,\\\\\326,]\334,{\344,|\366,}\374,~\337'
+
+
+################
+#
+# other terminals
+#
+
+#make hp700 termcap/info better
+termcapinfo  hp700 'Z0=\E[?3h:Z1=\E[?3l:hs:ts=\E[62"p\E[0$~\E[2$~\E[1$}:fs=\E[0}\E[61"p:ds=\E[62"p\E[1$~\E[61"p:ic@'
+
+# Extend the vt100 desciption by some sequences.
+termcap  vt100* ms:AL=\E[%dL:DL=\E[%dM:UP=\E[%dA:DO=\E[%dB:LE=\E[%dD:RI=\E[%dC
+terminfo vt100* ms:AL=\E[%p1%dL:DL=\E[%p1%dM:UP=\E[%p1%dA:DO=\E[%p1%dB:LE=\E[%p1%dD:RI=\E[%p1%dC
+
+
+# special vt100 hardstatus: use the window title.
+termcapinfo vt100* 'hs:ts=\E]0;:fs=^G:ds=\E]0;screen^G'
+
+#
+###################################################################
