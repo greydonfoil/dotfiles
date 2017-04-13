@@ -121,11 +121,22 @@ ignorecase on
 # hardstatus alwaysignore
 # hardstatus alwayslastline "%w"
 # caption always "%3n %t%? @%u%?%? [%h]%?"
+
+
 hardstatus on
-hardstatus string "%h"
+# hardstatus string "%h"
+
+# caption always "%{kY} %n%f* %t %?%{YR}%{kR} %u %{Rb}%:%{Yb}%?%?%F%{.b}%:%{.w}%?%="
+# hardstatus alwaysfirstline
+hardstatus alwayslastline
+# hardstatus string "%{kY} %-Lw%{Yk}%{Yk}%?%{Yk} %n%f* %t %{kY}%+Lw %-="
+# hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %m-%d %{W}%c %{g}]'
+
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?(%{bW}%n*%f%t%?(%u)%?%{= kw})%?%+Lw%?%?%= %{g}][%{B} %m-%d %{W}%c %{g}]'
+
 
 # advertise hardstatus support to $TERMCAP
-# termcapinfo  * '' 'hs:ts=\E_:fs=\E\\:ds=\E_\E\\'
+termcapinfo  * '' 'hs:ts=\E_:fs=\E\\:ds=\E_\E\\'
 
 # set every new window's hardstatus line to somenthing descriptive
 # defhstatus "screen: ^En (^Et)"

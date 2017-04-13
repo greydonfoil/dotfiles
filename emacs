@@ -1,11 +1,53 @@
 ;; Red Hat Linux default .emacs initialization file
 (menu-bar-mode -1)
 
+;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+;; (load-theme 'badwolf-theme-source-code)
+;; (load-theme 'molokai-theme)
+;; (load-theme 'mustard-theme)
+
+
+;; for themes:
+;; https://github.com/bkruczyk/badwolf-emacs
+;; -- for new packages, you might have to run: M-x package-refresh-contents
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/"))
+(package-initialize)
+
+;; then run: M-x package-install RET badwolf-theme RET
+			 
+
 (add-to-list 'load-path "~/.emacs.d/modules/")
 (require 'auto-complete-config)
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/modules/ac-dict")
 (ac-config-default)
 (define-key ac-completing-map "\C-m" nil)
+
+;; Config options for ivy
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
+(global-set-key "\C-s" 'swiper)
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
+(global-set-key (kbd "<f6>") 'ivy-resume)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(global-set-key (kbd "<f1> f") 'counsel-describe-function)
+(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+(global-set-key (kbd "<f1> l") 'counsel-find-library)
+(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+(global-set-key (kbd "C-c g") 'counsel-git)
+(global-set-key (kbd "C-c j") 'counsel-git-grep)
+(global-set-key (kbd "C-c k") 'counsel-ag)
+(global-set-key (kbd "C-x l") 'counsel-locate)
+(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+(define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
+;; end config options for ivy
+
+
+
 
 (require 'org-install)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
@@ -74,8 +116,10 @@
 ;;(setq menu-bar-mode 1)
 
 (custom-set-faces
-  ;; custom-set-faces was added by Custom -- don't edit or cut/paste it!
-  ;; Your init file should contain only one such instance.
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  )
 ;;; always so auto-fill in text mode
 ;;;(add-hook 'text-mode-hook '(lambda () (auto-fill-mode 1))) ;turn-on-auto-fill 
@@ -145,8 +189,14 @@
 ;;(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 
 (custom-set-variables
-  ;; custom-set-variables was added by Custom -- don't edit or cut/paste it!
-  ;; Your init file should contain only one such instance.
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default default default italic underline success warning error])
+ '(ansi-color-names-vector
+   ["#212526" "#ff4b4b" "#b4fa70" "#fce94f" "#729fcf" "#e090d7" "#8cc4ff" "#eeeeec"])
  '(c-basic-offset 4)
  '(cperl-close-paren-offset -4)
  '(cperl-continued-statement-offset 0)
@@ -154,9 +204,15 @@
  '(cperl-indent-parens-as-block t)
  '(cperl-use-syntax-table-text-property t)
  '(cperl-use-syntax-table-text-property-for-tags t)
+ '(custom-enabled-themes (quote (badwolf)))
+ '(custom-safe-themes
+   (quote
+	("066d4710e40eeb85aa7c72afa6c23d09dee4795bf4e450d4869324e917b5f64d" "b571f92c9bfaf4a28cb64ae4b4cdbda95241cd62cf07d942be44dc8f46c491f4" "405b0ac2ac4667c5dab77b36e3dd87a603ea4717914e30fcf334983f79cfd87e" default)))
  '(indent-tabs-mode t)
  '(paren-mode (quote paren) nil (paren))
- '(tab-stop-list (quote (4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96)))
+ '(tab-stop-list
+   (quote
+	(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96)))
  '(tab-width 4))
 
 ;;(require 'mmm-mode)
@@ -190,19 +246,19 @@
 
 ;; (global-set-key [f1] 'goto-line) 
 ;; (global-set-key [f2] 'undo) 
-(global-set-key [f1] '(lambda () (interactive) (jjj-insert-comment "//"))) 
-(global-set-key [f2] '(lambda () (interactive) (jjj-delete-comment "//"))) 
-(global-set-key [f3] '(lambda () (interactive) (jjj-insert-comment "%"))) 
-(global-set-key [(shift f3)] 'comment-region) 
-(global-set-key [f4] '(lambda () (interactive) (jjj-delete-comment "%")))
+;; (global-set-key [f1] '(lambda () (interactive) (jjj-insert-comment "//"))) 
+;; (global-set-key [f2] '(lambda () (interactive) (jjj-delete-comment "//"))) 
+;; (global-set-key [f3] '(lambda () (interactive) (jjj-insert-comment "%"))) 
+;; (global-set-key [(shift f3)] 'comment-region) 
+;; (global-set-key [f4] '(lambda () (interactive) (jjj-delete-comment "%")))
 (global-set-key [(shift f4)] 'universal-argument)
 (global-set-key [f5] 'shell)
-(global-set-key [f6] 'remove-dos-eol) 
+;; (global-set-key [f6] 'remove-dos-eol) 
 
 ;;(global-set-key [f6] 'find-wiki-node)
 
-(global-set-key [f7] 'split-window-vertically)
-(global-set-key [f8] 'delete-other-windows) ; unsplit window
+;; (global-set-key [f7] 'split-window-vertically)
+;; (global-set-key [f8] 'delete-other-windows) ; unsplit window
 (global-set-key [f9] 'font-lock-mode)
 
 

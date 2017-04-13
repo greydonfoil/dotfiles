@@ -6,8 +6,10 @@
 #
 
 # Requires packages:
-# sudo apt-get install xautolock i3 i3status nitrogen
-# sudo pip install py3status
+#   sudo apt-get install xautolock i3 i3status nitrogen
+#   sudo pip install py3status
+# Make sure i3, i3bar, i3status are upgraded:
+#  http://i3wm.org/docs/repositories.html
 
 # i3 config file (v4)
 #

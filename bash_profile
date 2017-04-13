@@ -1,6 +1,14 @@
 # .bash_profile
 
-export TERM=xterm-color
+if [ "$TERM" = "xterm" ]; then
+    export TERM=xterm-256color
+fi
+if [ "$TERM" = "screen" -o "$TERM" = "screen-256color" ]; then
+    export TERM=screen-256color
+    unset TERMCAP
+fi
+
+# export TERM=xterm-256color
 
 # Get the aliases and functions
 if [ -f ~/.bashrc ]; then
