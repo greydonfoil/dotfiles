@@ -1,6 +1,10 @@
-# Cal's screenrc
-#
-# (Mostly cribbed from Brady)
+screen -t editor   0
+screen -t compile  1
+screen -t scanagg  2
+screen -t meshnav  3
+screen -t waypoint 4
+screen -t htop     9 htop
+select 0
 
 # no annoying visible bell, please
 vbell off
@@ -16,6 +20,8 @@ pow_detach_msg "Screen session of \$LOGNAME \$:cr:\$:nl:ended."
 
 # make the shell in every window a login shell
 #shell -$SHELL
+
+shell "/usr/bin/zsh"
 
 # autoaka testing
 # shellaka '> |tcsh'
