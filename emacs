@@ -13,9 +13,12 @@
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/"))
+;;             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 (package-initialize)
 
 ;; then run: M-x package-install RET badwolf-theme RET
+
+(global-set-key (kbd "C-x g") 'magit-status)
 			 
 
 (add-to-list 'load-path "~/.emacs.d/modules/")
@@ -24,11 +27,13 @@
 (ac-config-default)
 (define-key ac-completing-map "\C-m" nil)
 
+;; M-x package-install RET ivy swiper counsel     (maybe just need 'swiper')
 ;; Config options for ivy
 (ivy-mode 1)
 (setq ivy-use-virtual-buffers t)
 (setq enable-recursive-minibuffers t)
 (global-set-key "\C-s" 'swiper)
+;;(global-set-key "\C-r" 'swiper)
 (global-set-key (kbd "C-c C-r") 'ivy-resume)
 (global-set-key (kbd "<f6>") 'ivy-resume)
 (global-set-key (kbd "M-x") 'counsel-M-x)
@@ -209,6 +214,9 @@
    (quote
 	("066d4710e40eeb85aa7c72afa6c23d09dee4795bf4e450d4869324e917b5f64d" "b571f92c9bfaf4a28cb64ae4b4cdbda95241cd62cf07d942be44dc8f46c491f4" "405b0ac2ac4667c5dab77b36e3dd87a603ea4717914e30fcf334983f79cfd87e" default)))
  '(indent-tabs-mode t)
+ '(package-selected-packages
+   (quote
+	(magit mustard-theme molokai-theme markdown-mode counsel badwolf-theme)))
  '(paren-mode (quote paren) nil (paren))
  '(tab-stop-list
    (quote

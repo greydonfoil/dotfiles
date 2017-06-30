@@ -44,7 +44,8 @@ alias dusort="du -ach | sort -h"
 alias df="df -Tha --total"
 alias mkdir="mkdir -pv"
 alias wget="wget -c"
-alias mesh="cd /home/gfoil/mesh/code/catkin_ws/src/meshnav-dev/src/ && cdpwd && screen"
+alias meshws="cd /home/gfoil/mesh/code/catkin_ws/src/meshnav-dev/src/ && cdpwd && screen"
+alias mesh="cd /home/gfoil/mesh/code/catkin_ws/src/meshnav-dev/src/"
 fi
 
 
