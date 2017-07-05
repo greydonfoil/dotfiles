@@ -1,0 +1,716 @@
+# -*- mode: org -*-
+# -*- coding: utf-8 -*-
+#+STARTUP: overview indent inlineimages logdrawer
+
+* Package installation
+use-package loads the package if it's available. If not it logs to *Messages*. [[https://github.com/jwiegley/use-package][Readme]]
+
+** Package setup
+#+BEGIN_SRC emacs-lisp
+;; -- for new packages, you might have to run: M-x package-refresh-contents
+(require 'package)
+(setq package-archives
+      '(("gnu" . "http://elpa.gnu.org/packages/")
+        ("org" . "http://orgmode.org/elpa/")
+        ("melpa" . "https://melpa.org/packages/")
+        ("melpa-stable" . "https://stable.melpa.org/packages/")))
+(add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
+(package-initialize)
+#+END_SRC
+
+** Automatic package install
+Copied from [[https://github.com/larstvei/dot-emacs][here.]]
+#+BEGIN_SRC emacs-lisp
+(let* ((packages
+        '(ivy                  ; Better movement between files
+          swiper               ; Better movement between files
+          counsel              ; Better search
+          all-the-icons        ; Icon support for file types
+          all-the-icons-ivy    ; Icon support in ivy
+          rainbow-delimiters   ; Colors parentheses based on depth
+          undo-tree            ; Display a navigable undo tree
+          use-package          ; loads packages if available. If not, logs errors to *Messages*
+          badwolf-theme        ; Emacs color theme
+          gruvbox-theme        ; Emacs color theme
+          jedi                 ; Python auto-completion for Emacs
+          magit                ; control Git from Emacs
+          markdown-mode        ; Emacs Major mode for Markdown-formatted files
+          org-ac               ; Auto-complete for org
+          org-bullets          ; Improved bullet rendering
+          xterm-color          ; color support for the terminal
+          smooth-scrolling     ; smooth mouse scrolling
+          which-key            ; Shows a popup with possible commands and their shortcuts
+          s                    ; dependency
+          dash                 ; dependency
+          origami              ; Code folding
+          org))                ; Outline-based notes management and organizer
+       ;; Remove all packages already installed
+       (packages (remove-if 'package-installed-p packages)))
+  (when packages
+    (ignore-errors (package-refresh-contents)
+                   (mapcar 'package-install packages)
+                   ;; This package is only relevant for Mac OS X.
+                   (when (memq window-system '(mac ns))
+                     (package-install 'exec-path-from-shell)))))
+#+END_SRC
+
+** Manual package install
+M-x package-refresh-contents
+M-x all-the-icons-install-fonts  (install to ~/.fonts/ then run `fc-cache -f -v`
+
+** Load Custom modules
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "~/.emacs.d/modules/")
+#+END_SRC
+
+* Themes
+;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/") -- or just package-install them.
+;; (load-theme 'badwolf-theme-source-code)
+;; (load-theme 'molokai-theme)
+;; (load-theme 'mustard-theme)
+
+;; for themes:
+;; https://github.com/bkruczyk/badwolf-emacs
+
+;; then run: M-x package-install RET badwolf-theme RET
+#+BEGIN_SRC emacs-lisp
+;;  (use-package gruvbox-theme
+;;    :init
+;;    (setq anzu-cons-mode-line-p t)
+;;    (setq gruvbox-contrast 'hard)
+
+    :config
+    ;; (gruvbox-modeline-three)
+;;    (load-theme 'gruvbox t))
+#+END_SRC
+
+* Basic initialization
+** Frame size
+#+BEGIN_SRC emacs-lisp
+;;(when window-system (set-frame-size (selected-frame) 80 40))
+;;(if (window-system)
+;;  (set-frame-height (selected-frame) 60)
+;;  (set-frame-width (selected-frame) 90))
+#+END_SRC
+** Hide stuff
+#+BEGIN_SRC emacs-lisp
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(toggle-scroll-bar -1)
+(setq inhibit-startup-message t)
+#+END_SRC
+** Change location of ~ files
+By default save all ~ files in this directory:
+#+BEGIN_SRC emacs-lisp
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+#+END_SRC
+
+* Package Initialization
+** xterm-color
+#+BEGIN_SRC emacs-lisp
+(require 'xterm-color)
+;; comint install
+(progn (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
+       (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions)))
+
+;; comint uninstall
+(progn (remove-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
+       (add-to-list 'comint-output-filter-functions 'ansi-color-process-output))
+
+;; For M-x shell, also set TERM accordingly (xterm-256color)
+
+;; You can also use it with eshell (and thus get color output from system ls):
+
+(require 'eshell)
+
+(add-hook 'eshell-mode-hook
+          (lambda ()
+            (setq xterm-color-preserve-properties t)))
+
+(add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
+(setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+#+END_SRC
+** Autocomplete
+#+BEGIN_SRC emacs-lisp
+(require 'auto-complete)
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories "~/.emacs.d/modules/ac-dict")
+(ac-config-default)
+(define-key ac-completing-map "\C-m" nil)
+(define-key ac-complete-mode-map [tab] 'ac-expand)
+
+;; Make sure it's turned on in org mode. Alternative to org-ac
+(add-to-list 'ac-modes 'org-mode)
+
+;; Org autocomplete
+(require 'org-ac)
+(org-ac/config-default)
+;;(ac-set-trigger-key "TAB")
+#+END_SRC
+
+** Sunshine
+#+BEGIN_SRC emacs-lisp
+(require 'sunshine)
+(setq sunshine-location "15228,USA")
+#+END_SRC
+** Origami
+#+BEGIN_SRC emacs-lisp
+(use-package origami :ensure t
+  :config
+    (add-hook 'prog-mode-hook
+      (lambda ()
+        (setq-local origami-fold-style 'triple-braces)
+        (origami-mode)
+        (origami-close-all-nodes (current-buffer)))))
+#+END_SRC
+** Smooth scrolling
+#+BEGIN_SRC emacs-lisp
+(use-package smooth-scrolling
+  :ensure t
+  :config
+  (smooth-scrolling-mode 1))
+#+END_SRC
+** Ivy
+
+#+BEGIN_SRC emacs-lisp
+;; Config options for ivy
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
+(global-set-key "\C-s" 'swiper)
+;;(global-set-key "\C-r" 'swiper)
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
+(global-set-key (kbd "<f6>") 'ivy-resume)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(global-set-key (kbd "<f1> f") 'counsel-describe-function)
+(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+(global-set-key (kbd "<f1> l") 'counsel-find-library)
+(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+(global-set-key (kbd "C-c g") 'counsel-git)
+(global-set-key (kbd "C-c j") 'counsel-git-grep)
+(global-set-key (kbd "C-c k") 'counsel-ag)
+(global-set-key (kbd "C-x l") 'counsel-locate)
+(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+(define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
+
+;; Extra ivy stuff:
+(require 'all-the-icons)
+(all-the-icons-ivy-setup)
+;; end config options for ivy
+#+END_SRC
+
+** Hydra
+#+BEGIN_SRC emacs-lisp
+(require 'hydra)
+#+END_SRC
+** Octave mode
+#+BEGIN_SRC emacs-lisp
+(autoload 'octave-mode "octave-mod" nil t)
+	(setq auto-mode-alist
+	(cons '("\\.m$" . octave-mode) auto-mode-alist))
+#+END_SRC
+** Undo tree
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+			 :diminish undo-tree-mode
+			 :config
+			 (progn
+			   (global-undo-tree-mode)
+			   (setq undo-tree-visualizer-timestamps t)
+			   (setq undo-tree-visualizer-diff t)))
+#+END_SRC
+
+** Which-key
+#+BEGIN_SRC emacs-lisp
+(use-package which-key :ensure t
+  :config (which-key-mode)
+  :diminish ""
+  )
+#+END_SRC
+** PHP Mode
+#+BEGIN_SRC emacs-lisp
+(require 'php-mode)
+
+(add-hook 'php-mode-hook
+  '(lambda () (define-abbrev php-mode-abbrev-table "ex" "extends")))
+
+(autoload 'php-mode "php-mode" "Major mode for editing php code." t)
+(add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
+(add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))
+#+END_SRC
+
+** Org mode
+*** Basic Org stuff
+#+BEGIN_SRC emacs-lisp
+;;;;;;; Org Mode ;;;;;;;
+(require 'org-install)
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(setq org-log-done t)
+(setq org-startup-truncated nil)
+(setq org-agenda-files '("~/Dropbox/org/"))
+
+(setq org-default-notes-file "~/Dropbox/org/todo.org")
+(setq org-directory "~/Dropbox/org")
+
+;; From [[https://github.com/aaronbieber/dotfiles/blob/master/configs/emacs.d/lisp/init-org.el][here]]
+  ;; Logging of state changes
+  (setq org-log-done (quote time))
+  (setq org-log-redeadline (quote time))
+  (setq org-log-reschedule (quote time))
+  (setq org-log-into-drawer t)
+
+  (setq org-pretty-entities t)
+  (setq org-insert-heading-respect-content t)
+  (setq org-ellipsis " …")
+  (setq org-export-initial-scope 'subtree)
+  (setq org-use-tag-inheritance nil) ;; Use the list form, which happens to be blank
+  (setq org-todo-keyword-faces
+        '(("OPEN" . org-done)
+          ("PAUSED" . org-upcoming-deadline)))
+
+;; PDFs visited in Org-mode are opened in Evince (and not in the default choice) http://stackoverflow.com/a/8836108/789593
+(add-hook 'org-mode-hook
+      '(lambda ()
+         (delete '("\\.pdf\\'" . default) org-file-apps)
+         (add-to-list 'org-file-apps '("\\.pdf\\'" . "evince %s"))))
+
+(defhydra hydra-org (:color red :columns 3)
+  "Org Mode Movements"
+  ("n" outline-next-visible-heading "next heading")
+  ("p" outline-previous-visible-heading "prev heading")
+  ("N" org-forward-heading-same-level "next heading at same level")
+  ("P" org-backward-heading-same-level "prev heading at same level")
+  ("u" outline-up-heading "up heading")
+  ("g" org-goto "goto" :exit t))
+
+(setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAITING" "|" "DONE" "CANCELED")))
+;;(setq org-blank-before-new-entry (quote ((heading) (plain-list-item))))
+(setq org-log-done (quote time))
+(setq org-log-redeadline (quote time))
+(setq org-log-reschedule (quote time))
+;;(setq org-src-window-setup 'current-window)
+
+
+(setq org-modules
+        '(org-bbdb org-bibtex org-docview org-habit org-info org-w3m))
+(setq org-todo-keywords
+        '((sequence "TODO" "IN-PROGRESS" "WAITING" "|" "DONE" "CANCELED")))
+
+;; org-goto/ivy interplay hack
+(setq org-goto-interface 'outline-path-completion)
+(setq org-outline-path-complete-in-steps nil)
+#+END_SRC
+*** Agenda view
+Some good org stuff taken from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][here.]]
+#+BEGIN_SRC emacs-lisp
+
+  (setq org-agenda-skip-scheduled-if-done t)
+  (setq org-agenda-custom-commands
+        '(("d" "Daily agenda and all TODOs"
+           (;; Not-yet-done priority "A" entries (will also display
+            ;; non-todo entries).
+            (tags "PRIORITY=\"A\""
+                  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                   (org-agenda-overriding-header "High-priority unfinished tasks:")))
+            ;; Only todo entries (must be dated to appear in agenda)
+            ;; These are usually habits; entries that are marked todo,
+            ;; have a date in scope, and do not have a priority of "A".
+            (agenda ""
+                    ((org-agenda-span 1)
+                     (org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo 'any))))
+            ;; Only non-todo entries (still must be dated to appear in
+            ;; here). These are things I just want to be aware of,
+            ;; like anniversaries, vacations, or other peripheral
+            ;; events.
+            (agenda ""
+                    ((org-agenda-span 1)
+                     (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'any))))
+            ;; Items completed during this work week. My skip function
+            ;; here goes through some contortions that may not be
+            ;; necessary; it would be faster to simply show "closed in
+            ;; the last 7 days". Maybe some other time.
+            (todo "DONE"
+                  ((org-agenda-skip-function 'air-org-skip-if-not-closed-this-week)
+                   (org-agenda-overriding-header "Closed this week:"))))
+           ((org-agenda-compact-blocks t)))
+
+          ("b" "Backlog items"
+           ((alltodo ""
+                     ((org-agenda-skip-function '(or (air-org-skip-if-habit)
+                                                     (air-org-skip-if-priority ?A)
+                                                     (org-agenda-skip-if nil '(scheduled deadline))))
+                      (org-agenda-overriding-header "ALL normal priority tasks:"))))
+           ((org-agenda-compact-blocks t)))
+
+          ("g" "Individuals' current goals"
+           ((tags "perfgoal+TODO=\"TODO\"|perfgoal+TODO=\"IN-PROGRESS\""
+                  ((org-agenda-overriding-header "Individuals' current goals:")))))
+          ))
+(set-face-attribute 'org-upcoming-deadline nil :foreground "gold1")
+
+(defun air-org-skip-subtree-if-habit ()
+  "Skip an agenda entry if it has a STYLE property equal to \"habit\"."
+  (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+    (if (string= (org-entry-get nil "STYLE") "habit")
+        subtree-end
+      nil)))
+
+(defun air-org-skip-subtree-if-priority (priority)
+  "Skip an agenda subtree if it has a priority of PRIORITY.
+
+PRIORITY may be one of the characters ?A, ?B, or ?C."
+  (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+        (pri-value (* 1000 (- org-lowest-priority priority)))
+        (pri-current (org-get-priority (thing-at-point 'line t))))
+    (if (= pri-value pri-current)
+        subtree-end
+      nil)))
+
+#+END_SRC
+
+A good agenda hydra:
+#+BEGIN_SRC emacs-lisp
+;;** org-agenda-view
+(defun org-agenda-cts ()
+  (and (eq major-mode 'org-agenda-mode)
+	   (let ((args (get-text-property
+					(min (1- (point-max)) (point))
+					'org-last-args)))
+		 (nth 2 args))))
+
+(defhydra hydra-org-agenda-view (:hint none)
+    "
+_d_: ?d? day        _g_: time grid=?g?  _a_: arch-trees
+_w_: ?w? week       _[_: inactive       _A_: arch-files
+_t_: ?t? fortnight  _f_: follow=?f?     _r_: clock report=?r?
+_m_: ?m? month      _e_: entry text=?e? _D_: include diary=?D?
+_y_: ?y? year       _q_: quit           _L__l__c_: log = ?l?"
+	("SPC" org-agenda-reset-view)
+	("d" org-agenda-day-view (if (eq 'day (org-agenda-cts)) "[x]" "[ ]"))
+	("w" org-agenda-week-view (if (eq 'week (org-agenda-cts)) "[x]" "[ ]"))
+	("t" org-agenda-fortnight-view (if (eq 'fortnight (org-agenda-cts)) "[x]" "[ ]"))
+	("m" org-agenda-month-view (if (eq 'month (org-agenda-cts)) "[x]" "[ ]"))
+	("y" org-agenda-year-view (if (eq 'year (org-agenda-cts)) "[x]" "[ ]"))
+	("l" org-agenda-log-mode (format "% -3S" org-agenda-show-log))
+	("L" (org-agenda-log-mode '(4)))
+	("c" (org-agenda-log-mode 'clockcheck))
+	("f" org-agenda-follow-mode (format "% -3S" org-agenda-follow-mode))
+	("a" org-agenda-archives-mode)
+	("A" (org-agenda-archives-mode 'files))
+	("r" org-agenda-clockreport-mode (format "% -3S" org-agenda-clockreport-mode))
+	("e" org-agenda-entry-text-mode (format "% -3S" org-agenda-entry-text-mode))
+	("g" org-agenda-toggle-time-grid (format "% -3S" org-agenda-use-time-grid))
+	("D" org-agenda-toggle-diary (format "% -3S" org-agenda-include-diary))
+	("!" org-agenda-toggle-deadlines)
+	("[" (let ((org-agenda-include-inactive-timestamps t))
+		   (org-agenda-check-type t 'timeline 'agenda)
+		   (org-agenda-redo)
+		   (message "Display now includes inactive timestamps as well")))
+	("q" (message "Abort") :exit t)
+	("v" nil))
+;;(define-key org-agenda-mode-map "v" 'hydra-org-agenda-view/body)
+#+END_SRC
+
+*** Capture
+Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WTtEbXWw5pg][this link]] for info on how to bind a key to bring this up even if emacs isn't in focus.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c c")
+       'org-capture)
+
+(setq org-capture-templates
+      '(("a" "Meeting" entry (file  "~/Dropbox/org/gcal.org" "Meetings")
+         "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n")
+        ("n" "Note" entry (file+headline "~/Dropbox/org/notes.org" "Notes")
+         "* %?\n%T")
+        ("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
+         "* %? %^L %^g \n%T" :prepend t)
+        ("t" "To Do Item" entry (file+headline "~/Dropbox/org/todo.org" "To Do Items")
+         "* %?\n%T" :prepend t)
+        ("m" "Mesh To Do Item" entry (file+headline "~/Dropbox/org/mesh.org" "Mesh To Do Items")
+         "* %?\n%T" :prepend t)
+        ("i" "Ideas" entry (file+headline "~/Dropbox/org/ideas.org" "Ideas")
+         "* %?\n%T" :prepend t)
+        ("j" "Journal" entry (file+datetree "~/Dropbox/journal.org")
+         "* %?\nEntered on %U\n  %i\n  %a")))
+#+END_SRC
+*** Refile
+#+BEGIN_SRC emacs-lisp
+(setq gf-refile-targets
+      '("~/Dropbox/org/notes.org"
+        "~/Dropbox/org/links.org"
+        "~/Dropbox/org/todo.org"
+        "~/Dropbox/org/gcal.org"
+        "~/Dropbox/org/journal.org"
+        "~/Dropbox/org/old/done.org"
+        "~/Dropbox/org/old/cancelled.org"
+        "~/Dropbox/org/mesh.org"))
+
+(setq org-refile-targets
+      '((nil :maxlevel . 1)
+        (gf-refile-targets :maxlevel . 1)))
+#+END_SRC
+** Rainbow Delimeters
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-delimiters :ensure t
+  :config (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+#+END_SRC
+** Org Bullets
+#+BEGIN_SRC emacs-lisp
+(use-package org-bullets
+  :ensure t
+  :init
+
+  ;; org-bullets-bullet-list
+  ;; default: "◉ ○ ✸ ✿"
+  ;; large: ♥ ● ◇ ✚ ✜ ☯ ◆ ♠ ♣ ♦ ☢ ❀ ◆ ◖ ▶
+  ;; Small: ► • ★ ▸
+  (setq org-bullets-bullet-list '("•"))
+
+  ;; others: ▼, ↴, ⬎, ⤷,…, and ⋱.
+  ;; (setq org-ellipsis "⤵")
+  (setq org-ellipsis "…")
+
+  :config
+  (add-hook 'org-mode-hook #'org-bullets-mode))
+#+END_SRC
+** Markdown mode
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+#+END_SRC
+* Keybinds
+There are also a few of these sprinkled in above sections that are specific to certain modules.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x g") 'magit-status)
+
+;; Set up the keyboard so the delete key on both the regular keyboard
+;; and the keypad delete the character under the cursor and to the right
+;; under X, instead of the default, backspace behavior.
+(global-set-key [delete] 'delete-char)
+(global-set-key [kp-delete] 'delete-char)
+
+(define-key esc-map "g" 'goto-line)
+(define-key esc-map "G" 'what-line)
+(define-key esc-map "r" 'replace-string)
+(define-key esc-map "o" 'other-window)
+
+(global-set-key "\C-x\C-c" 'my-delete-frame)
+(global-set-key "\C-x\C-m" 'execute-extended-command) ;; execute M-x w/o alt
+
+;; kill a word. changes the Cut function as well. 
+(global-set-key "\C-w"     'backward-kill-word)
+(global-set-key "\C-x\C-k" 'kill-region)
+
+;; (global-set-key [f1] 'goto-line) 
+;; (global-set-key [f2] 'undo) 
+;; (global-set-key [f1] '(lambda () (interactive) (jjj-insert-comment "//"))) 
+;; (global-set-key [f2] '(lambda () (interactive) (jjj-delete-comment "//"))) 
+;; (global-set-key [f3] '(lambda () (interactive) (jjj-insert-comment "%"))) 
+;; (global-set-key [(shift f3)] 'comment-region) 
+;; (global-set-key [f4] '(lambda () (interactive) (jjj-delete-comment "%")))
+(global-set-key [(shift f4)] 'universal-argument)
+(global-set-key [f5] 'shell)
+;; (global-set-key [f6] 'remove-dos-eol) 
+
+;;(global-set-key [f6] 'find-wiki-node)
+
+(global-set-key [f7] 'sunshine-quick-forecast)
+;; (global-set-key [f8] 'delete-other-windows) ; unsplit window
+(global-set-key [f9] 'font-lock-mode)
+
+;; Make control+pageup/down scroll the other buffer
+(global-set-key [C-next] 'scroll-other-window)
+(global-set-key [C-prior] 'scroll-other-window-down)
+#+END_SRC
+* Custom functions
+** Preserve window size
+#+BEGIN_SRC emacs-lisp
+(defun save-framegeometry ()
+  "Gets the current frame's geometry and saves to ~/.emacs.d/framegeometry."
+  (let (
+        (framegeometry-left (frame-parameter (selected-frame) 'left))
+        (framegeometry-top (frame-parameter (selected-frame) 'top))
+        (framegeometry-width (frame-parameter (selected-frame) 'width))
+        (framegeometry-height (frame-parameter (selected-frame) 'height))
+        (framegeometry-file (expand-file-name "~/.emacs.d/framegeometry"))
+        )
+
+    (when (not (number-or-marker-p framegeometry-left))
+      (setq framegeometry-left 0))
+    (when (not (number-or-marker-p framegeometry-top))
+      (setq framegeometry-top 0))
+    (when (not (number-or-marker-p framegeometry-width))
+      (setq framegeometry-width 0))
+    (when (not (number-or-marker-p framegeometry-height))
+      (setq framegeometry-height 0))
+
+    (with-temp-buffer
+      (insert
+       ";;; This is the previous emacs frame's geometry.\n"
+       ";;; Last generated " (current-time-string) ".\n"
+       "(setq initial-frame-alist\n"
+       "      '(\n"
+       (format "        (top . %d)\n" (max framegeometry-top 0))
+       (format "        (left . %d)\n" (max framegeometry-left 0))
+       (format "        (width . %d)\n" (max framegeometry-width 0))
+       (format "        (height . %d)))\n" (max framegeometry-height 0)))
+      (when (file-writable-p framegeometry-file)
+        (write-file framegeometry-file))))
+  )
+
+(defun load-framegeometry ()
+  "Loads ~/.emacs.d/framegeometry which should load the previous frame's geometry."
+  (let ((framegeometry-file (expand-file-name "~/.emacs.d/framegeometry")))
+    (when (file-readable-p framegeometry-file)
+      (load-file framegeometry-file)))
+  )
+
+;; Special work to do ONLY when there is a window system being used
+(if window-system
+    (progn
+      (add-hook 'after-init-hook 'load-framegeometry)
+      (add-hook 'kill-emacs-hook 'save-framegeometry))
+  )
+#+END_SRC
+** Old stuff
+#+BEGIN_SRC emacs-lisp
+(defun remove-dos-eol ()
+  "Do not show ^M in files containing mixed UNIX and DOS line endings."
+  (interactive)
+  (setq buffer-display-table (make-display-table))
+  (aset buffer-display-table ?\^M []))
+
+(defun my-delete-frame ()
+  "Deletes the current frame. If this is the last frame, quit Emacs."
+  (interactive)
+  (if (cdr (frame-list))
+      (delete-frame)
+    (save-buffers-kill-emacs)))
+;;(global-set-key [\M-f4] 'my-delete-frame)
+
+
+;;Add perl print template
+(defun insert-perl-print ()
+  "Add perl print template"
+  (interactive "*")
+  (setq steve-var "print \"\\n\";")
+  (insert steve-var)
+)
+
+;;; Code:
+(defun jjj-delete-string (s)
+  "Delete string S."  (interactive)
+  (let ((n (length s)))
+    (while (> n 0)
+      (progn
+        (delete-char 1)
+        (setq n (- n 1)) ) ) )
+  )
+
+(defun jjj-backward-delete-string (s)
+  "Backward delete string S."  (interactive)
+  (let ((n (length s)))
+    (while (> n 0)
+      (progn
+        (backward-delete-char 1)
+        (setq n (- n 1)) ) ) )
+  )
+
+
+;;; ONE LINE COMMENTS:
+(defun jjj-insert-comment (s)
+  "Insert S at begin of line to comment line out."  (interactive)
+  (progn
+    (beginning-of-line)
+    (progn
+      (insert s)
+      (beginning-of-line)
+      (delete-horizontal-space)
+      (beginning-of-line 2) )
+    (recenter) )
+  )
+
+(defun jjj-delete-comment (s)
+  "Delete S at begin of line to uncomment line."  (interactive)
+  (progn
+    (beginning-of-line)
+    (progn
+      (delete-horizontal-space)
+      (jjj-delete-string s)
+      (beginning-of-line 2) )
+    (recenter) )
+  )
+
+;;This method, when bound to C-x C-c, allows you to close an emacs frame the 
+;;same way, whether it's the sole window you have open, or whether it's
+;;a "child" frame of a "parent" frame.  If you're like me, and use emacs in
+;;a windowing environment, you probably have lots of frames open at any given
+;;time.  Well, it's a pain to remember to do Ctrl-x 5 0 to dispose of a child
+;;frame, and to remember to do C-x C-x to close the main frame (and if you're
+;;not careful, doing so will take all the child frames away with it).  This
+;;is my solution to that: an intelligent close-frame operation that works in 
+;;all cases (even in an emacs -nw session).
+(defun intelligent-close ()
+  "quit a frame the same way no matter what kind of frame you are on"
+  (interactive)
+  (if (eq (car (visible-frame-list)) (selected-frame))
+      ;;for parent/master frame...
+      (if (> (length (visible-frame-list)) 1)
+          ;;close a parent with children present
+   (delete-frame (selected-frame))
+        ;;close a parent with no children present
+ (save-buffers-kill-emacs))
+    ;;close a child frame
+    (delete-frame (selected-frame))))
+#+END_SRC
+* Tweaks
+** Font lock tweak
+#+BEGIN_SRC emacs-lisp
+;;(require 'font-lock)
+;;(global-font-lock-mode 1 t)
+(if (fboundp 'global-font-lock-mode)
+    (global-font-lock-mode 1)        ; GNU Emacs
+  (setq font-lock-auto-fontify t))   ; XEmacs
+#+END_SRC
+* TODO Misc
+
+#+BEGIN_SRC emacs-lisp
+;; show line number:
+(setq line-number-mode t)
+
+;;; Display time and date on the status line
+(setq display-time-day-and-date t)
+(display-time)
+
+;;; Display an area as highlighted when you select it
+(setq-default transient-mark-mode t)
+
+;;; Case-insensitive file-complete
+(setq read-file-name-completion-ignore-case t)
+(setq completion-ignore-case t)
+
+;;; show matching parens
+(show-paren-mode t)
+
+;; Make all "yes or no" prompts show "y or n" instead
+(fset 'yes-or-no-p 'y-or-n-p)
+
+;; Open unidentified files in text mode
+(setq default-major-mode 'text-mode)
+(setq-default indent-tabs-mode t)
+
+;;; set mode depending on file name
+(setq auto-mode-alist 
+      '(("\\.org$" . org-mode) ("\\.py$" . python-mode) ("\\.esp$" . perl-mode) ("\\.pm$" . perl-mode) ("\\.sql$" . sql-mode) ("\\.text$" . text-mode) ("\\.notes$" . text-mode) ("\\.tmpl" . xml-mode) ("\\.c$" . c-mode) ("\\.h$" . c++-mode) ("\\.C$" . c++-mode) ("\\.cpp$" . c++-mode) ("\\.cc$" . c++-mode) ("\\.H$" . c++-mode) ("\\.tex$" . TeX-mode) ("\\.el$" . emacs-lisp-mode) ("\\.scm$" . scheme-mode) ("\\.l$" . lisp-mode) ("\\.lisp$" . lisp-mode) ("\\.f$" . fortran-mode) ("\\.mss$" . scribe-mode) ("\\.pl$" . perl-mode) ("\\.TeX$" . TeX-mode) ("\\.sty$" . LaTeX-mode) ("\\.bbl$" . LaTeX-mode) ("\\.bib$" . text-mode) ("\\.article$" . text-mode) ("\\.letter$" . text-mode) ("\\.texinfo$" . texinfo-mode) ("\\.lsp$" . lisp-mode) ("\\.prolog$" . prolog-mode) ("^/tmp/Re" . text-mode) ("^/tmp/fol/" . text-mode) ("/Message[0-9]*$" . text-mode) ("\\.y$" . c-mode) ("\\.scm.[0-9]*$" . scheme-mode) ("[]>:/]\\..*emacs" . emacs-lisp-mode) ("\\.ml$" . lisp-mode) ("\\.x$" . c-mode)))
+
+(require 'dabbrev)
+
+#+END_SRC
