@@ -8,6 +8,7 @@ use-package loads the package if it's available. If not it logs to *Messages*. [
 ** Package setup
 #+BEGIN_SRC emacs-lisp
 ;; -- for new packages, you might have to run: M-x package-refresh-contents
+;; to get melpa to work on windows: https://gnutls.org/download.html
 (require 'package)
 (setq package-archives
       '(("gnu" . "http://elpa.gnu.org/packages/")
