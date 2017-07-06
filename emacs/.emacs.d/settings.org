@@ -113,6 +113,7 @@ By default save all ~ files in this directory:
 
 * Package Initialization
 ** magit and magithub
+[[https://github.com/vermiculus/magithub][link to magithub]]
 #+BEGIN_SRC emacs-lisp
 (use-package magit)
 ;;(use-package magithub
