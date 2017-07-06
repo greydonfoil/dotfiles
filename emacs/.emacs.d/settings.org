@@ -2,6 +2,14 @@
 # -*- coding: utf-8 -*-
 #+STARTUP: overview indent inlineimages logdrawer
 
+See [[http://orgmode.org/manual/In_002dbuffer-settings.html][here]] for more startup options.
+
+* Good .emacs examples:
+[[http://pages.sachachua.com/.emacs.d/Sacha.html#org5f504e8][Sacha Chua]]
+[[https://writequit.org/org/settings.html#sec-1-57][Write Quit blog]]
+[[https://github.com/dakrone/dakrone-dotfiles/blob/master/emacs.org][dakrone]]
+[[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org#25-windows][angrybacon]]
+
 * Package installation
 use-package loads the package if it's available. If not it logs to *Messages*. [[https://github.com/jwiegley/use-package][Readme]]
 
@@ -39,6 +47,7 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
           symon                ; small system monitor
           markdown-mode        ; Emacs Major mode for Markdown-formatted files
           auto-complete        ; auto-complete
+          org-trello           ; integration between org and trello
           org-ac               ; Auto-complete for org
           org-bullets          ; Improved bullet rendering
           xterm-color          ; color support for the terminal
@@ -235,15 +244,23 @@ By default save all ~ files in this directory:
 (require 'sunshine)
 (setq sunshine-location "15228,USA")
 #+END_SRC
-** Origami
+** Folding
+Origami doesn't currently work the way I want it to. Try hideshow instead.
 #+BEGIN_SRC emacs-lisp
-(use-package origami
-  :bind (("C-c TAB" . origami-recursively-toggle-node)
-         ("C-\\" . origami-recursively-toggle-node)
-         ("M-\\" . origami-close-all-nodes)
-         ("M-+" . origami-open-all-nodes))
-  :init
-  (global-origami-mode))
+;;(use-package origami
+;;  :bind (("C-c TAB" . origami-recursively-toggle-node)
+;;         ("C-\\" . origami-recursively-toggle-node)
+;;         ("M-\\" . origami-close-all-nodes)
+;;         ("M-+" . origami-open-all-nodes))
+;;  :init
+;;  (global-origami-mode))
+
+;; (require 'fold-dwim)
+(use-package hideshow
+  :bind (("C-c TAB" . hs-toggle-hiding)
+         ("C-\\" . hs-show-all)
+         ("M-\\" . hs-hide-all))
+  :config (add-hook 'prog-mode-hook #'hs-minor-mode))
 #+END_SRC
 ** Smooth scrolling
 #+BEGIN_SRC emacs-lisp
@@ -251,6 +268,44 @@ By default save all ~ files in this directory:
   :ensure t
   :config
   (smooth-scrolling-mode 1))
+#+END_SRC
+** org trello
+#+BEGIN_SRC emacs-lisp
+(require 'org-trello)
+(custom-set-variables
+   ;; '(org-trello-current-prefix-keybinding "C-c x") ;; C-c x as the default prefix
+   '(org-trello-files '("~/Dropbox/org/mesh.trello"))) ;; automatic org-trello on files
+
+;; [[https://org-trello.github.io/bindings.html]]
+(add-hook 'org-trello-mode-hook
+  (lambda ()
+    (define-key org-trello-mode-map (kbd "C-c o c") 'org-trello-sync-card)
+    (define-key org-trello-mode-map (kbd "C-c o s") 'org-trello-sync-buffer)
+    (define-key org-trello-mode-map (kbd "C-c o a") 'org-trello-assign-me)
+    (define-key org-trello-mode-map (kbd "C-c o d") 'org-trello-check-setup)
+    (define-key org-trello-mode-map (kbd "C-c o D") 'org-trello-delete-setup)
+    (define-key org-trello-mode-map (kbd "C-c o b") 'org-trello-create-board-and-install-metadata)
+    (define-key org-trello-mode-map (kbd "C-c o k") 'org-trello-kill-entity)
+    (define-key org-trello-mode-map (kbd "C-c o K") 'org-trello-kill-cards)
+    (define-key org-trello-mode-map (kbd "C-c o a") 'org-trello-archive-card)
+    (define-key org-trello-mode-map (kbd "C-c o A") 'org-trello-archive-cards)
+    (define-key org-trello-mode-map (kbd "C-c o j") 'org-trello-jump-to-trello-card)
+    (define-key org-trello-mode-map (kbd "C-c o J") 'org-trello-jump-to-trello-board)
+    (define-key org-trello-mode-map (kbd "C-c o C") 'org-trello-add-card-comments)
+    (define-key org-trello-mode-map (kbd "C-c o o") 'org-trello-show-card-comments)
+    (define-key org-trello-mode-map (kbd "C-c o l") 'org-trello-show-card-labels)
+    (define-key org-trello-mode-map (kbd "C-c o u") 'org-trello-update-board-metadata)
+    (define-key org-trello-mode-map (kbd "C-c o h") 'org-trello-help-describing-bindings)))
+
+;; org-trello major mode for all .trello files
+(add-to-list 'auto-mode-alist '("\\.trello$" . org-mode))
+
+;; add a hook function to check if this is trello file, then activate the org-trello minor mode.
+(add-hook 'org-mode-hook
+          (lambda ()
+            (let ((filename (buffer-file-name (current-buffer))))
+              (when (and filename (string= "trello" (file-name-extension filename)))
+              (org-trello-mode)))))
 #+END_SRC
 ** Ivy
 
@@ -326,65 +381,65 @@ By default save all ~ files in this directory:
 ** Org mode
 *** Basic Org stuff
 #+BEGIN_SRC emacs-lisp
-;;;;;;; Org Mode ;;;;;;;
-(require 'org-install)
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-(define-key global-map "\C-cl" 'org-store-link)
-(define-key global-map "\C-ca" 'org-agenda)
-(setq org-log-done t)
-(setq org-startup-truncated nil)
-(setq org-agenda-files '("~/Dropbox/org/"))
+  ;;;;;;; Org Mode ;;;;;;;
+  (require 'org-install)
+  (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+  (define-key global-map "\C-cl" 'org-store-link)
+  (define-key global-map "\C-ca" 'org-agenda)
+  (setq org-log-done t)
+  (setq org-startup-truncated nil)
+  (setq org-agenda-files '("~/Dropbox/org/"))
 
-(setq org-default-notes-file "~/Dropbox/org/todo.org")
-(setq org-directory "~/Dropbox/org")
+  (setq org-default-notes-file "~/Dropbox/org/todo.org")
+  (setq org-directory "~/Dropbox/org")
 
-;; From [[https://github.com/aaronbieber/dotfiles/blob/master/configs/emacs.d/lisp/init-org.el][here]]
-  ;; Logging of state changes
+  ;; From [[https://github.com/aaronbieber/dotfiles/blob/master/configs/emacs.d/lisp/init-org.el][here]]
+    ;; Logging of state changes
+    (setq org-log-done (quote time))
+    (setq org-log-redeadline (quote time))
+    (setq org-log-reschedule (quote time))
+    (setq org-log-into-drawer t)
+
+    (setq org-pretty-entities t)
+    (setq org-insert-heading-respect-content t)
+    (setq org-ellipsis " …")
+    (setq org-export-initial-scope 'subtree)
+    (setq org-use-tag-inheritance nil) ;; Use the list form, which happens to be blank
+    (setq org-todo-keyword-faces
+          '(("OPEN" . org-done)
+            ("PAUSED" . org-upcoming-deadline)))
+
+  ;; PDFs visited in Org-mode are opened in Evince (and not in the default choice) http://stackoverflow.com/a/8836108/789593
+  (add-hook 'org-mode-hook
+        '(lambda ()
+           (delete '("\\.pdf\\'" . default) org-file-apps)
+           (add-to-list 'org-file-apps '("\\.pdf\\'" . "evince %s"))))
+
+  (defhydra hydra-org (:color red :columns 3)
+    "Org Mode Movements"
+    ("n" outline-next-visible-heading "next heading")
+    ("p" outline-previous-visible-heading "prev heading")
+    ("N" org-forward-heading-same-level "next heading at same level")
+    ("P" org-backward-heading-same-level "prev heading at same level")
+    ("u" outline-up-heading "up heading")
+    ("g" org-goto "goto" :exit t))
+
+  (setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAITING" "|" "DONE" "CANCELED")))
+  ;;(setq org-blank-before-new-entry (quote ((heading) (plain-list-item))))
   (setq org-log-done (quote time))
   (setq org-log-redeadline (quote time))
   (setq org-log-reschedule (quote time))
-  (setq org-log-into-drawer t)
-
-  (setq org-pretty-entities t)
-  (setq org-insert-heading-respect-content t)
-  (setq org-ellipsis " …")
-  (setq org-export-initial-scope 'subtree)
-  (setq org-use-tag-inheritance nil) ;; Use the list form, which happens to be blank
-  (setq org-todo-keyword-faces
-        '(("OPEN" . org-done)
-          ("PAUSED" . org-upcoming-deadline)))
-
-;; PDFs visited in Org-mode are opened in Evince (and not in the default choice) http://stackoverflow.com/a/8836108/789593
-(add-hook 'org-mode-hook
-      '(lambda ()
-         (delete '("\\.pdf\\'" . default) org-file-apps)
-         (add-to-list 'org-file-apps '("\\.pdf\\'" . "evince %s"))))
-
-(defhydra hydra-org (:color red :columns 3)
-  "Org Mode Movements"
-  ("n" outline-next-visible-heading "next heading")
-  ("p" outline-previous-visible-heading "prev heading")
-  ("N" org-forward-heading-same-level "next heading at same level")
-  ("P" org-backward-heading-same-level "prev heading at same level")
-  ("u" outline-up-heading "up heading")
-  ("g" org-goto "goto" :exit t))
-
-(setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAITING" "|" "DONE" "CANCELED")))
-;;(setq org-blank-before-new-entry (quote ((heading) (plain-list-item))))
-(setq org-log-done (quote time))
-(setq org-log-redeadline (quote time))
-(setq org-log-reschedule (quote time))
-;;(setq org-src-window-setup 'current-window)
+  ;;(setq org-src-window-setup 'current-window)
 
 
-(setq org-modules
-        '(org-bbdb org-bibtex org-docview org-habit org-info org-w3m))
-(setq org-todo-keywords
-        '((sequence "TODO" "IN-PROGRESS" "WAITING" "|" "DONE" "CANCELED")))
+  (setq org-modules
+          '(org-bbdb org-bibtex org-docview org-habit org-info org-w3m))
+  (setq org-todo-keywords
+          '((sequence "TODO" "IN-PROGRESS" "WAITING" "|" "DONE" "CANCELED")))
 
-;; org-goto/ivy interplay hack
-(setq org-goto-interface 'outline-path-completion)
-(setq org-outline-path-complete-in-steps nil)
+  ;; org-goto/ivy interplay hack
+  (setq org-goto-interface 'outline-path-completion)
+  (setq org-outline-path-complete-in-steps nil)
 #+END_SRC
 *** Agenda view
 Some good org stuff taken from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][here.]]
@@ -498,7 +553,7 @@ _y_: ?y? year       _q_: quit           _L__l__c_: log = ?l?"
 #+END_SRC
 
 *** Capture
-Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WTtEbXWw5pg][this link]] for info on how to bind a key to bring this up even if emacs isn't in focus.
+Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WTtEbXWw5pg][this link]] for info on how to bind a key to bring this up even if emacs isn't in focus. See [[http://orgmode.org/manual/Template-expansion.html#Template-expansion][this link]] for template shortcuts (the % commands below).
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-c c")
        'org-capture)
@@ -516,8 +571,8 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
          "* %?\n%T" :prepend t)
         ("i" "Ideas" entry (file+headline "~/Dropbox/org/ideas.org" "Ideas")
          "* %?\n%T" :prepend t)
-        ("j" "Journal" entry (file+datetree "~/Dropbox/journal.org")
-         "* %?\nEntered on %U\n  %i\n  %a")))
+        ("j" "Journal" entry (file+datetree "~/Dropbox/org/journal.org")
+         "* %?\nEntered on %U\n")))
 #+END_SRC
 *** Refile
 #+BEGIN_SRC emacs-lisp
