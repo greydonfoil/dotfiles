@@ -34,7 +34,10 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
           gruvbox-theme        ; Emacs color theme
           jedi                 ; Python auto-completion for Emacs
           magit                ; control Git from Emacs
+          magithub             ; Github integration for Magit
+          symon                ; small system monitor
           markdown-mode        ; Emacs Major mode for Markdown-formatted files
+          auto-complete        ; auto-complete
           org-ac               ; Auto-complete for org
           org-bullets          ; Improved bullet rendering
           xterm-color          ; color support for the terminal
@@ -43,6 +46,8 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
           s                    ; dependency
           dash                 ; dependency
           origami              ; Code folding
+          bm                   ; visible bookmarks
+          php-mode             ; php mode
           org))                ; Outline-based notes management and organizer
        ;; Remove all packages already installed
        (packages (remove-if 'package-installed-p packages)))
@@ -106,6 +111,81 @@ By default save all ~ files in this directory:
 #+END_SRC
 
 * Package Initialization
+** magit and magithub
+#+BEGIN_SRC emacs-lisp
+(use-package magit)
+;;(use-package magithub
+;;  :after magit
+;;  :config (magithub-feature-autoinject t))
+#+END_SRC
+** symon system monitor
+#+BEGIN_SRC emacs-lisp
+(use-package symon
+  :init
+  (symon-mode))
+#+END_SRC
+** bookmark management
+#+BEGIN_SRC emacs-lisp
+(use-package bm
+         :ensure t
+         :demand t
+
+         :init
+         ;; restore on load (even before you require bm)
+         (setq bm-restore-repository-on-load t)
+
+
+         :config
+         ;; Allow cross-buffer 'next'
+         ;;(setq bm-cycle-all-buffers t)
+
+         ;; where to store persistant files
+         (setq bm-repository-file "~/.emacs.d/bm-repository")
+
+         ;; save bookmarks
+         (setq-default bm-buffer-persistence t)
+
+         ;; Loading the repository from file when on start up.
+         (add-hook' after-init-hook 'bm-repository-load)
+
+         ;; Restoring bookmarks when on file find.
+         (add-hook 'find-file-hooks 'bm-buffer-restore)
+
+         ;; Saving bookmarks
+         (add-hook 'kill-buffer-hook #'bm-buffer-save)
+
+         ;; Saving the repository to file when on exit.
+         ;; kill-buffer-hook is not called when Emacs is killed, so we
+         ;; must save all bookmarks first.
+         (add-hook 'kill-emacs-hook #'(lambda nil
+                                          (bm-buffer-save-all)
+                                          (bm-repository-save)))
+
+         ;; The `after-save-hook' is not necessary to use to achieve persistence,
+         ;; but it makes the bookmark data in repository more in sync with the file
+         ;; state.
+         (add-hook 'after-save-hook #'bm-buffer-save)
+
+         ;; Restoring bookmarks
+         (add-hook 'find-file-hooks   #'bm-buffer-restore)
+         (add-hook 'after-revert-hook #'bm-buffer-restore)
+
+         ;; The `after-revert-hook' is not necessary to use to achieve persistence,
+         ;; but it makes the bookmark data in repository more in sync with the file
+         ;; state. This hook might cause trouble when using packages
+         ;; that automatically reverts the buffer (like vc after a check-in).
+         ;; This can easily be avoided if the package provides a hook that is
+         ;; called before the buffer is reverted (like `vc-before-checkin-hook').
+         ;; Then new bookmarks can be saved before the buffer is reverted.
+         ;; Make sure bookmarks is saved before check-in (and revert-buffer)
+         (add-hook 'vc-before-checkin-hook #'bm-buffer-save)
+
+
+         :bind (("<f2>" . bm-next)
+                ("S-<f2>" . bm-previous)
+                ("C-<f2>" . bm-toggle))
+         )
+#+END_SRC
 ** xterm-color
 #+BEGIN_SRC emacs-lisp
 (require 'xterm-color)
@@ -155,13 +235,13 @@ By default save all ~ files in this directory:
 #+END_SRC
 ** Origami
 #+BEGIN_SRC emacs-lisp
-(use-package origami :ensure t
-  :config
-    (add-hook 'prog-mode-hook
-      (lambda ()
-        (setq-local origami-fold-style 'triple-braces)
-        (origami-mode)
-        (origami-close-all-nodes (current-buffer)))))
+(use-package origami
+  :bind (("C-c TAB" . origami-recursively-toggle-node)
+         ("C-\\" . origami-recursively-toggle-node)
+         ("M-\\" . origami-close-all-nodes)
+         ("M-+" . origami-open-all-nodes))
+  :init
+  (global-origami-mode))
 #+END_SRC
 ** Smooth scrolling
 #+BEGIN_SRC emacs-lisp
@@ -186,8 +266,8 @@ By default save all ~ files in this directory:
 (global-set-key (kbd "<f1> f") 'counsel-describe-function)
 (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
 (global-set-key (kbd "<f1> l") 'counsel-find-library)
-(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+;;(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+;;(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
 (global-set-key (kbd "C-c g") 'counsel-git)
 (global-set-key (kbd "C-c j") 'counsel-git-grep)
 (global-set-key (kbd "C-c k") 'counsel-ag)
