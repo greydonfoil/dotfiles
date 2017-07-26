@@ -25,18 +25,26 @@
  '(cperl-indent-parens-as-block t)
  '(cperl-use-syntax-table-text-property t)
  '(cperl-use-syntax-table-text-property-for-tags t)
- '(custom-enabled-themes (quote (badwolf)))
+ '(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+ '(custom-enabled-themes (quote (gf-doom-molokai)))
  '(custom-safe-themes
    (quote
-	("2d16a5d1921feb826a6a9b344837c1ab3910f9636022fa6dc1577948694b7d84" "f23a961abba42fc5d75bf94c46b5688c52683c02b3a81313dd0738b4d48afd1d" "3eb2b5607b41ad8a6da75fe04d5f92a46d1b9a95a202e3f5369e2cdefb7aac5c" "8d3c5e9ba9dcd05020ccebb3cc615e40e7623b267b69314bdb70fe473dd9c7a8" "066d4710e40eeb85aa7c72afa6c23d09dee4795bf4e450d4869324e917b5f64d" "b571f92c9bfaf4a28cb64ae4b4cdbda95241cd62cf07d942be44dc8f46c491f4" "405b0ac2ac4667c5dab77b36e3dd87a603ea4717914e30fcf334983f79cfd87e" default)))
+	("11bd611c5f1f1dc9d540f699ed97255d5a38030821a0b0ec044498cab95f030b" "2411358c548f51f69c9e76a2b807a0e6e8ff9da99d737ffd53c1a5eea33ebcb2" "537489746e4ddd3537279f39a88710444bf87e5a8fbefc33a9e3d29163f5af65" "ec1685ac5336aecf95190dafcbbe53dc175b9cafdef6bf793a736d8706b58555" "10309e8b8b8f1c915085fafc29a0bd843a932ef352a39ded761f9748f518d0ba" "b8d7c73338addc5c9c111b1e66a72611338a4fe7320b7fbb32362e8ce4a752fd" "10c6c92d4ca028cc82b3fe13a4233434409624ab5403e9d557f17fce7e9b8a34" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" "6f11ad991da959fa8de046f7f8271b22d3a97ee7b6eca62c81d5a917790a45d9" "611e38c2deae6dcda8c5ac9dd903a356c5de5b62477469133c89b2785eb7a14d" "b81bfd85aed18e4341dbf4d461ed42d75ec78820a60ce86730fc17fc949389b2" "365d9553de0e0d658af60cff7b8f891ca185a2d7ba3fc6d29aadba69f5194c7f" "a6e5edd129bc48c9540ab6ed4a76a2e4e0da6359e981a3ec0bffbeb4416d4cc9" "2d16a5d1921feb826a6a9b344837c1ab3910f9636022fa6dc1577948694b7d84" "f23a961abba42fc5d75bf94c46b5688c52683c02b3a81313dd0738b4d48afd1d" "3eb2b5607b41ad8a6da75fe04d5f92a46d1b9a95a202e3f5369e2cdefb7aac5c" "8d3c5e9ba9dcd05020ccebb3cc615e40e7623b267b69314bdb70fe473dd9c7a8" "066d4710e40eeb85aa7c72afa6c23d09dee4795bf4e450d4869324e917b5f64d" "b571f92c9bfaf4a28cb64ae4b4cdbda95241cd62cf07d942be44dc8f46c491f4" "405b0ac2ac4667c5dab77b36e3dd87a603ea4717914e30fcf334983f79cfd87e" default)))
+ '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
  '(indent-tabs-mode t)
+ '(notmuch-search-line-faces
+   (quote
+	(("unread" :foreground "#aeee00")
+	 ("flagged" :foreground "#0a9dff")
+	 ("deleted" :foreground "#ff2c4b" :bold t))))
  '(org-agenda-files
    (quote
-	("/home/gfoil/Dropbox/org/commands.org" "/home/gfoil/Dropbox/org/cpp.org" "/home/gfoil/Dropbox/org/gcal.org" "/home/gfoil/Dropbox/org/home.org" "/home/gfoil/Dropbox/org/journal.org" "/home/gfoil/Dropbox/org/mesh.org" "/home/gfoil/Dropbox/org/notes.org" "/home/gfoil/Dropbox/org/python.org" "/home/gfoil/Dropbox/org/mesh.trello")))
- '(org-trello-files (quote ("~/Dropbox/org/mesh.trello")) nil (org-trello))
+	("/home/gfoil/Dropbox/org/commands.org" "/home/gfoil/Dropbox/org/cpp.org" "/home/gfoil/Dropbox/org/gcal.org" "/home/gfoil/Dropbox/org/home.org" "/home/gfoil/Dropbox/org/journal.org" "/home/gfoil/Dropbox/org/mesh.org" "/home/gfoil/Dropbox/org/notes.org" "/home/gfoil/Dropbox/org/python.org")))
+ '(org-trello-current-prefix-keybinding "C-c o" nil (org-trello))
+ '(org-trello-files (quote ("~/Dropbox/org/trello/mesh.trello")) nil (org-trello))
  '(package-selected-packages
    (quote
-	(gruvbox-theme sunshine ivy-hydra hydra use-package undo-tree all-the-icons-ivy magit mustard-theme molokai-theme markdown-mode counsel badwolf-theme)))
+	(doom-themes sunshine ivy-hydra hydra use-package undo-tree all-the-icons-ivy magit markdown-mode counsel)))
  '(paren-mode (quote paren) nil (paren))
  '(tab-stop-list
    (quote
