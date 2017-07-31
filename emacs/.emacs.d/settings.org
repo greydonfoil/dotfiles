@@ -54,6 +54,7 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
           xterm-color          ; color support for the terminal
           smooth-scrolling     ; smooth mouse scrolling
           which-key            ; Shows a popup with possible commands and their shortcuts
+          projectile           ; emacs project development
           s                    ; dependency
           dash                 ; dependency
           origami              ; Code folding
@@ -368,13 +369,13 @@ Origami doesn't currently work the way I want it to. Try hideshow instead.
 #+END_SRC
 ** Undo tree
 #+BEGIN_SRC emacs-lisp
-(use-package undo-tree
-			 :diminish undo-tree-mode
-			 :config
-			 (progn
-			   (global-undo-tree-mode)
-			   (setq undo-tree-visualizer-timestamps t)
-			   (setq undo-tree-visualizer-diff t)))
+;;(use-package undo-tree
+;;			 :diminish undo-tree-mode
+;;			 :config
+;;			 (progn
+;;			   (global-undo-tree-mode)
+;;			   (setq undo-tree-visualizer-timestamps t)
+;;			   (setq undo-tree-visualizer-diff t)))
 #+END_SRC
 
 ** Which-key
