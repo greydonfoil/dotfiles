@@ -55,6 +55,7 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
           xterm-color          ; color support for the terminal
           smooth-scrolling     ; smooth mouse scrolling
           which-key            ; Shows a popup with possible commands and their shortcuts
+          projectile           ; emacs project development
           s                    ; dependency
           dash                 ; dependency
           origami              ; Code folding
