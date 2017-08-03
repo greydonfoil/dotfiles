@@ -48,6 +48,7 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
           symon                ; small system monitor
           markdown-mode        ; Emacs Major mode for Markdown-formatted files
           auto-complete        ; auto-complete
+          ace-window           ; better window swapping
           org-trello           ; integration between org and trello
           org-ac               ; Auto-complete for org
           org-bullets          ; Improved bullet rendering
@@ -139,6 +140,28 @@ By default save all ~ files in this directory:
 #+END_SRC
 
 * Package Initialization
+** ace window
+#+BEGIN_SRC emacs-lisp
+(use-package ace-window
+:ensure t
+:init
+(progn
+(global-set-key (kbd "C-x O") 'other-frame)
+  (global-set-key [remap other-window] 'ace-window)
+  (custom-set-faces
+   '(aw-leading-char-face
+     ((t (:inherit ace-jump-face-foreground :height 3.0))))) 
+  ))
+
+(defun z/swap-windows ()
+""
+(interactive)
+(ace-swap-window)
+(aw-flip-window)
+)
+
+(global-set-key (kbd "M-p") 'z/swap-windows)
+#+END_SRC
 ** magit and magithub
 [[https://github.com/vermiculus/magithub][link to magithub]]
 #+BEGIN_SRC emacs-lisp
@@ -368,13 +391,13 @@ Origami doesn't currently work the way I want it to. Try hideshow instead.
 #+END_SRC
 ** Undo tree
 #+BEGIN_SRC emacs-lisp
-(use-package undo-tree
-			 :diminish undo-tree-mode
-			 :config
-			 (progn
-			   (global-undo-tree-mode)
-			   (setq undo-tree-visualizer-timestamps t)
-			   (setq undo-tree-visualizer-diff t)))
+;;(use-package undo-tree
+;;			 :diminish undo-tree-mode
+;;			 :config
+;;			 (progn
+;;			   (global-undo-tree-mode)
+;;			   (setq undo-tree-visualizer-timestamps t)
+;;			   (setq undo-tree-visualizer-diff t)))
 #+END_SRC
 
 ** Which-key
@@ -410,6 +433,9 @@ Origami doesn't currently work the way I want it to. Try hideshow instead.
 
   (setq org-default-notes-file "~/Dropbox/org/todo.org")
   (setq org-directory "~/Dropbox/org")
+  (setq org-startup-indented t)
+  (add-hook 'org-mode-hook #'visual-line-mode)
+
 
   ;; From [[https://github.com/aaronbieber/dotfiles/blob/master/configs/emacs.d/lisp/init-org.el][here]]
     ;; Logging of state changes
@@ -846,6 +872,9 @@ There are also a few of these sprinkled in above sections that are specific to c
 ;;; Display time and date on the status line
 (setq display-time-day-and-date t)
 (display-time)
+
+;; restore the previous desktop on restart
+(desktop-save-mode 1)
 
 ;;; Display an area as highlighted when you select it
 (setq-default transient-mark-mode t)

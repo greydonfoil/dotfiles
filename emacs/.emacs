@@ -14,6 +14,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(add-to-list (quote custom-theme-load-path) t)
  '(ansi-color-faces-vector
    [default default default italic underline success warning error])
  '(ansi-color-names-vector
@@ -25,7 +26,6 @@
  '(cperl-indent-parens-as-block t)
  '(cperl-use-syntax-table-text-property t)
  '(cperl-use-syntax-table-text-property-for-tags t)
- '(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
  '(custom-enabled-themes (quote (gf-doom-molokai)))
  '(custom-safe-themes
    (quote
@@ -44,7 +44,7 @@
  '(org-trello-files (quote ("~/Dropbox/org/trello/mesh.trello")) nil (org-trello))
  '(package-selected-packages
    (quote
-	(doom-themes sunshine ivy-hydra hydra use-package undo-tree all-the-icons-ivy magit markdown-mode counsel)))
+	(ace-window doom-themes sunshine ivy-hydra hydra use-package undo-tree all-the-icons-ivy magit markdown-mode counsel)))
  '(paren-mode (quote paren) nil (paren))
  '(tab-stop-list
    (quote
