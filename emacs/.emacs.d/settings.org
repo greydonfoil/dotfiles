@@ -56,6 +56,7 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
           smooth-scrolling     ; smooth mouse scrolling
           which-key            ; Shows a popup with possible commands and their shortcuts
           projectile           ; emacs project development
+          org-gcal             ; google calendar integration with org
           s                    ; dependency
           dash                 ; dependency
           origami              ; Code folding
@@ -431,6 +432,7 @@ Origami doesn't currently work the way I want it to. Try hideshow instead.
   (setq org-log-done t)
   (setq org-startup-truncated nil)
   (setq org-agenda-files '("~/Dropbox/org/"))
+  (setq org-agenda-window-setup 'current-window)
 
   (setq org-default-notes-file "~/Dropbox/org/todo.org")
   (setq org-directory "~/Dropbox/org")
@@ -469,7 +471,7 @@ Origami doesn't currently work the way I want it to. Try hideshow instead.
     ("u" outline-up-heading "up heading")
     ("g" org-goto "goto" :exit t))
 
-  (setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAITING" "|" "DONE" "CANCELED")))
+  ;;(setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAITING" "|" "DONE" "CANCELED")))
   ;;(setq org-blank-before-new-entry (quote ((heading) (plain-list-item))))
   (setq org-log-done (quote time))
   (setq org-log-redeadline (quote time))
@@ -482,9 +484,28 @@ Origami doesn't currently work the way I want it to. Try hideshow instead.
   (setq org-todo-keywords
           '((sequence "TODO" "IN-PROGRESS" "WAITING" "|" "DONE" "CANCELED")))
 
+  (setq org-todo-keyword-faces
+    '(("TODO" . (:foreground "#ff39a3" :weight bold))
+  	("INPROGRESS" . "#E35DBF")
+  	("IN-PROGRESS" . "#00A8E9")
+      ("CANCELED" . "#555555")
+  	("WAITING" . "pink")
+  	("DONE" . "#555555")))
+
   ;; org-goto/ivy interplay hack
   (setq org-goto-interface 'outline-path-completion)
   (setq org-outline-path-complete-in-steps nil)
+
+(defun gcal-fetch-and-sync ()
+  "Fetch the calendar and then sync"
+  (interactive)
+  (org-gcal-fetch)
+  (org-gcal-sync))
+
+(add-hook 'org-agenda-mode-hook (lambda () (gcal-fetch-and-sync) ))
+(add-hook 'org-capture-after-finalize-hook (lambda () (gcal-fetch-and-sync) ))
+;;(add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync) ))
+;;(add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync) ))
 #+END_SRC
 *** Agenda view
 Some good org stuff taken from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][here.]]
@@ -527,7 +548,9 @@ Some good org stuff taken from [[https://blog.aaronbieber.com/2016/09/24/an-agen
                                                      (org-agenda-skip-if nil '(scheduled deadline))))
                       (org-agenda-overriding-header "ALL normal priority tasks:"))))
            ((org-agenda-compact-blocks t)))
-
+          ("c" "Simple agenda view"
+           ((agenda "")
+           (alltodo "")))
           ("g" "Individuals' current goals"
            ((tags "perfgoal+TODO=\"TODO\"|perfgoal+TODO=\"IN-PROGRESS\""
                   ((org-agenda-overriding-header "Individuals' current goals:")))))
@@ -604,13 +627,15 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
        'org-capture)
 
 (setq org-capture-templates
-      '(("a" "Meeting" entry (file  "~/Dropbox/org/gcal.org" "Meetings")
-         "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n")
+      '(("a" "Appointment" entry (file  "~/Dropbox/org/gcal.org" )
+         "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
         ("n" "Note" entry (file+headline "~/Dropbox/org/notes.org" "Notes")
          "* %?\n%T")
         ("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
          "* %? %^L %^g \n%T" :prepend t)
-        ("t" "To Do Item" entry (file+headline "~/Dropbox/org/todo.org" "To Do Items")
+        ("t" "To Do Today" checkitem (file+headline "~/Dropbox/org/today.org" "To do today")
+         " [ ] %?" :prepend t)
+        ("p" "Personal To Do Item" entry (file+headline "~/Dropbox/org/todo.org" "To Do Items")
          "* %?\n%T" :prepend t)
         ("m" "Mesh To Do Item" entry (file+headline "~/Dropbox/org/mesh.org" "Mesh To Do Items")
          "* %?\n%T" :prepend t)
