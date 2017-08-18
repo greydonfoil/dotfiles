@@ -4,6 +4,10 @@
 
 (require 'org)
 
+;; Private settings file
+(load "~/Dropbox/Personal/emacs_secrets.el" t)
+
+
 ;; Loads up .emacs.d/settings.org
 (org-babel-load-file
  (expand-file-name "settings.org"
@@ -44,7 +48,7 @@
  '(org-trello-files (quote ("~/Dropbox/org/trello/mesh.trello")) nil (org-trello))
  '(package-selected-packages
    (quote
-	(ace-window doom-themes sunshine ivy-hydra hydra use-package undo-tree all-the-icons-ivy magit markdown-mode counsel)))
+	(org-gcal ace-window doom-themes sunshine ivy-hydra hydra use-package undo-tree all-the-icons-ivy magit markdown-mode counsel)))
  '(paren-mode (quote paren) nil (paren))
  '(tab-stop-list
    (quote
@@ -55,5 +59,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(aw-leading-char-face ((t (:inherit ace-jump-face-foreground :height 3.0))))
  '(bm-fringe-persistent-face ((t (:background "dark orange" :foreground "White"))))
  '(bm-persistent-face ((t (:background "dark orange" :foreground "White")))))
