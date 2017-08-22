@@ -9,7 +9,9 @@ See [[http://orgmode.org/manual/In_002dbuffer-settings.html][here]] for more sta
 [[https://writequit.org/org/settings.html#sec-1-57][Write Quit blog]]
 [[https://github.com/dakrone/dakrone-dotfiles/blob/master/emacs.org][dakrone]]
 [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org#25-windows][angrybacon]]
-
+** Org export examples:
+- https://www.reddit.com/r/emacs/comments/6r32q4/orgmode_whats_your_html_export_look_like/
+- http://ivanmalison.github.io/dotfiles/#setbackgroundcolorofsourceblocksforexport
 * Package installation
 use-package loads the package if it's available. If not it logs to *Messages*. [[https://github.com/jwiegley/use-package][Readme]]
 
