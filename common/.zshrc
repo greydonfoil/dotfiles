@@ -129,7 +129,7 @@ function cdpwd {
 #export PATH="/home/gfoil/bin/anaconda/bin:$PATH"
 
 # source /opt/ros/kinetic/setup.zsh
-source /opt/ros/indigo/setup.zsh
+source /opt/ros/kinetic/setup.zsh
 
 # For mesh ODE
 export ODE_DIR=/usr/local
