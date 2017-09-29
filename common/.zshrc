@@ -110,11 +110,11 @@ alias mkdir="mkdir -pv"
 alias wget="wget -c"
 alias meshws="cd /home/gfoil/mesh/code/catkin_ws/src/meshnav-dev/src/ && cdpwd && screen"
 alias mesh="ls"
+alias grep="grep --color=auto"
 
 export PATH="$PATH:/usr0/home/gfoil/bin"
 export LD_LIBRARY_PATH=/usr0/home/gfoil/bin:/usr/X11R6/lib:$LD_LIBRARY_PATH
 export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LIBRARY_PATH
-export GREP_OPTIONS='--color=auto'
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig
 export PYTHONPATH=/usr/local/lib/python2.7/dist-packages:$PYTHONPATH
 #export GREP_COLOR='1;32'
@@ -129,10 +129,11 @@ function cdpwd {
 #export PATH="/home/gfoil/bin/anaconda/bin:$PATH"
 
 # source /opt/ros/kinetic/setup.zsh
-source /opt/ros/indigo/setup.zsh
+source /opt/ros/kinetic/setup.zsh
 
 # For mesh ODE
 export ODE_DIR=/usr/local
+
 if [ -f "${HOME}/mesh/code/catkin_ws/install/setup.zsh" ]; then
     source ${HOME}/mesh/code/catkin_ws/install/setup.zsh
 fi
