@@ -22,6 +22,12 @@ Instructions [here.](https://github.com/robbyrussell/oh-my-zsh)
 
 Install powerline fonts using the instructions [here.](https://powerline.readthedocs.io/en/latest/installation/linux.html#fonts-installation)
 
+`chsh -s /bin/zsh` then log out and back in to have ZSH as your default shell. 
+
+## Common Ubuntu Issues
+
+* `gdebi` is a good package manager if you can't install .deb files through the package manager.
+
 ## Installing on Windows
 
 The file emacs/windows.emacs in this repo has some Windows-specific information. Specifically:
