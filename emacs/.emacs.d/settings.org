@@ -880,6 +880,27 @@ There are also a few of these sprinkled in above sections that are specific to c
     ;;close a child frame
     (delete-frame (selected-frame))))
 #+END_SRC
+** capture screenshot and import it into org
+#+BEGIN_SRC emacs-lisp
+(defun my-org-screenshot ()
+  "Take a screenshot into a time stamped unique-named file in the
+same directory as the org-buffer and insert a link to this file."
+  (interactive)
+  (setq outdir
+      (concat (file-name-directory (buffer-file-name)) "media/"))
+  (unless (file-directory-p outdir)
+          (make-directory outdir t))
+  (setq filename
+        (concat
+         (make-temp-name
+         (concat outdir
+                 (file-name-nondirectory (buffer-file-name))
+                 "_"
+                 (format-time-string "%Y%m%d_%H%M%S_")) ) ".png"))
+  (call-process "import" nil nil nil filename)
+  (insert (concat "[[file:" filename "]]"))
+  (org-display-inline-images))
+#+END_SRC
 * Tweaks
 ** Font lock tweak
 #+BEGIN_SRC emacs-lisp
