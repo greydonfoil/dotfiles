@@ -25,6 +25,8 @@ use-package loads the package if it's available. If not it logs to *Messages*. [
         ("org" . "http://orgmode.org/elpa/")
         ("melpa" . "https://melpa.org/packages/")
         ("melpa-stable" . "https://stable.melpa.org/packages/")))
+;;(add-to-list 'package-archives
+;;             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
 (package-initialize)
 #+END_SRC
@@ -59,6 +61,10 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
           which-key            ; Shows a popup with possible commands and their shortcuts
           projectile           ; emacs project development
           org-gcal             ; google calendar integration with org
+          elfeed               ; RSS/feed reader
+          hideshow             ; code folding
+          sgml-mode            ; tools
+          nxml-mode            ; XML tools
           s                    ; dependency
           dash                 ; dependency
           origami              ; Code folding
@@ -77,7 +83,8 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
 
 ** Manual package install
 M-x package-refresh-contents
-M-x all-the-icons-install-fonts  (install to ~/.fonts/ then run `fc-cache -f -v`
+M-x all-the-icons
+-install-fonts  (install to ~/.fonts/ then run `fc-cache -f -v`
 
 ** Load Custom modules
 #+BEGIN_SRC emacs-lisp
@@ -165,6 +172,27 @@ By default save all ~ files in this directory:
 )
 
 (global-set-key (kbd "M-p") 'z/swap-windows)
+
+(setq aw-keys '(?2 ?3 ?1 ?4 ?5 ?6 ?7 ?8 ?9))
+#+END_SRC
+** elfeed
+#+BEGIN_SRC emacs-lisp
+(setq elfeed-feeds
+      '(("http://nullprogram.com/feed/" emacs)
+        ("http://planet.emacsen.org/atom.xml" emacs)
+        ("http://sachachua.com/blog/category/emacs-news/feed/" emacs)
+        ("https://www.reddit.com/r/dailyprogrammer/.rss" programming)
+        ("https://www.reddit.com/r/machinelearning/.rss" programming)
+        ("https://herbsutter.com/feed/" programming)
+        ("http://www.datatau.com/rss" machine-learning)
+        ("http://news.startup.ml/rss" machine-learning)
+        ("https://machinelearningmastery.com/blog/feed/" machine-learning)
+        ("https://www.reddit.com/r/cpp/.rss" programming)
+        ("https://askldjd.com/feed/" programming)
+        ("https://blog.knatten.org/feed/" programming)
+        ("https://feeds.feedburner.com/CppTruths?format=xml" programming)
+        ("http://codesynthesis.com/~boris/blog/feed/" programming)
+        ("http://nedroid.com/feed/" webcomic)))
 #+END_SRC
 ** magit and magithub
 [[https://github.com/vermiculus/magithub][link to magithub]]
@@ -306,6 +334,35 @@ Origami doesn't currently work the way I want it to. Try hideshow instead.
          ("C-\\" . hs-show-all)
          ("M-\\" . hs-hide-all))
   :config (add-hook 'prog-mode-hook #'hs-minor-mode))
+
+(require 'sgml-mode)
+(require 'nxml-mode)
+
+;; Fix XML folding
+(add-to-list 'hs-special-modes-alist
+             (list 'nxml-mode
+                   "<!--\\|<[^/>]*[^/]>"
+                   "-->\\|</[^/>]*[^/]>"
+                   "<!--"
+                   'nxml-forward-element
+                   nil))
+
+;; Fix HTML folding
+(dolist (mode '(sgml-mode
+                html-mode
+                html-erb-mode))
+  (add-to-list 'hs-special-modes-alist
+               (list mode
+                     "<!--\\|<[^/>]*[^/]>"
+                     "-->\\|</[^/>]*[^/]>"
+                     "<!--"
+                     'sgml-skip-tag-forward
+                     nil)))
+
+(add-hook 'nxml-mode-hook 'hs-minor-mode)
+
+;; optional key bindings, easier than hs defaults
+(define-key nxml-mode-map (kbd "C-c h") 'hs-toggle-hiding)
 #+END_SRC
 ** Smooth scrolling
 #+BEGIN_SRC emacs-lisp
@@ -901,6 +958,38 @@ same directory as the org-buffer and insert a link to this file."
   (insert (concat "[[file:" filename "]]"))
   (org-display-inline-images))
 #+END_SRC
+** Reload/update packages
+#+BEGIN_SRC emacs-lisp
+(defun package-upgrade-all ()
+  "Upgrade all packages automatically without showing *Packages* buffer."
+  (interactive)
+  (package-refresh-contents)
+  (let (upgrades)
+    (cl-flet ((get-version (name where)
+                (let ((pkg (cadr (assq name where))))
+                  (when pkg
+                    (package-desc-version pkg)))))
+      (dolist (package (mapcar #'car package-alist))
+        (let ((in-archive (get-version package package-archive-contents)))
+          (when (and in-archive
+                     (version-list-< (get-version package package-alist)
+                                     in-archive))
+            (push (cadr (assq package package-archive-contents))
+                  upgrades)))))
+    (if upgrades
+        (when (yes-or-no-p
+               (message "Upgrade %d package%s (%s)? "
+                        (length upgrades)
+                        (if (= (length upgrades) 1) "" "s")
+                        (mapconcat #'package-desc-full-name upgrades ", ")))
+          (save-window-excursion
+            (dolist (package-desc upgrades)
+              (let ((old-package (cadr (assq (package-desc-name package-desc)
+                                             package-alist))))
+                (package-install package-desc)
+                (package-delete  old-package)))))
+      (message "All packages are up to date"))))
+#+END_SRC
 * Tweaks
 ** Font lock tweak
 #+BEGIN_SRC emacs-lisp
@@ -944,8 +1033,15 @@ same directory as the org-buffer and insert a link to this file."
 
 ;;; set mode depending on file name
 (setq auto-mode-alist 
-      '(("\\.org$" . org-mode) ("\\.py$" . python-mode) ("\\.esp$" . perl-mode) ("\\.pm$" . perl-mode) ("\\.sql$" . sql-mode) ("\\.text$" . text-mode) ("\\.notes$" . text-mode) ("\\.tmpl" . xml-mode) ("\\.c$" . c-mode) ("\\.h$" . c++-mode) ("\\.C$" . c++-mode) ("\\.cpp$" . c++-mode) ("\\.cc$" . c++-mode) ("\\.H$" . c++-mode) ("\\.tex$" . TeX-mode) ("\\.el$" . emacs-lisp-mode) ("\\.scm$" . scheme-mode) ("\\.l$" . lisp-mode) ("\\.lisp$" . lisp-mode) ("\\.f$" . fortran-mode) ("\\.mss$" . scribe-mode) ("\\.pl$" . perl-mode) ("\\.TeX$" . TeX-mode) ("\\.sty$" . LaTeX-mode) ("\\.bbl$" . LaTeX-mode) ("\\.bib$" . text-mode) ("\\.article$" . text-mode) ("\\.letter$" . text-mode) ("\\.texinfo$" . texinfo-mode) ("\\.lsp$" . lisp-mode) ("\\.prolog$" . prolog-mode) ("^/tmp/Re" . text-mode) ("^/tmp/fol/" . text-mode) ("/Message[0-9]*$" . text-mode) ("\\.y$" . c-mode) ("\\.scm.[0-9]*$" . scheme-mode) ("[]>:/]\\..*emacs" . emacs-lisp-mode) ("\\.ml$" . lisp-mode) ("\\.x$" . c-mode)))
+      '(("\\.org$" . org-mode) ("\\.py$" . python-mode) ("\\.esp$" . perl-mode) ("\\.pm$" . perl-mode) ("\\.sql$" . sql-mode) ("\\.text$" . text-mode) ("\\.notes$" . text-mode) ("\\.tmpl" . xml-mode) ("\\.c$" . c-mode) ("\\.h$" . c++-mode) ("\\.C$" . c++-mode) ("\\.cpp$" . c++-mode) ("\\.cc$" . c++-mode) ("\\.H$" . c++-mode) ("\\.tex$" . TeX-mode) ("\\.el$" . emacs-lisp-mode) ("\\.scm$" . scheme-mode) ("\\.l$" . lisp-mode) ("\\.lisp$" . lisp-mode) ("\\.f$" . fortran-mode) ("\\.mss$" . scribe-mode) ("\\.pl$" . perl-mode) ("\\.TeX$" . TeX-mode) ("\\.sty$" . LaTeX-mode) ("\\.bbl$" . LaTeX-mode) ("\\.bib$" . text-mode) ("\\.article$" . text-mode) ("\\.letter$" . text-mode) ("\\.texinfo$" . texinfo-mode) ("\\.lsp$" . lisp-mode) ("\\.prolog$" . prolog-mode) ("^/tmp/Re" . text-mode) ("^/tmp/fol/" . text-mode) ("/Message[0-9]*$" . text-mode) ("\\.y$" . c-mode) ("\\.scm.[0-9]*$" . scheme-mode) ("[]>:/]\\..*emacs" . emacs-lisp-mode) ("\\.ml$" . lisp-mode) ("\\.x$" . c-mode) ("\\.md" . markdown-mode) ("\\.launch" . xml-mode)))
 
 (require 'dabbrev)
+
+
+(require 'visual-regexp)
+;;(require 'visual-regexp-steroids)
+(define-key global-map (kbd "C-c r") 'vr/replace)
+(define-key global-map (kbd "C-c q") 'vr/query-replace)
+
 
 #+END_SRC
