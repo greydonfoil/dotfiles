@@ -28,7 +28,9 @@ use-package loads the package if it's available. If not it logs to *Messages*. [
 ;;(add-to-list 'package-archives
 ;;             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
-(package-initialize)
+
+;; uncomment this if you want to check package archives at init
+;;(package-initialize)
 #+END_SRC
 
 ** Automatic package install
@@ -51,7 +53,8 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
           magithub             ; Github integration for Magit
           symon                ; small system monitor
           markdown-mode        ; Emacs Major mode for Markdown-formatted files
-          auto-complete        ; auto-complete
+          ;;auto-complete        ; auto-complete
+          company              ; auto-complete
           ace-window           ; better window swapping
           org-trello           ; integration between org and trello
           org-ac               ; Auto-complete for org
@@ -70,11 +73,12 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
           origami              ; Code folding
           bm                   ; visible bookmarks
           php-mode             ; php mode
+          cmake-mode             ; cmake mode
           org))                ; Outline-based notes management and organizer
        ;; Remove all packages already installed
        (packages (remove-if 'package-installed-p packages)))
   (when packages
-    (ignore-errors (package-refresh-contents)
+    (ignore-errors;; (package-refresh-contents) ;; uncomment to refresh package contents on startup
                    (mapcar 'package-install packages)
                    ;; This package is only relevant for Mac OS X.
                    (when (memq window-system '(mac ns))
@@ -151,6 +155,120 @@ By default save all ~ files in this directory:
 #+END_SRC
 
 * Package Initialization
+** Code validation
+#+BEGIN_SRC emacs-lisp
+;; Validation of setq and stuff
+(use-package validate
+  :ensure t)
+#+END_SRC
+** C++ IDE stuff
+- Most taken from [[https://onze.io/emacs/c++/2017/03/16/emacs-cpp.html][here]]
+- Some recommendations on using ycmd with ros [[https://www.reddit.com/r/vim/comments/4835a7/youcompleteme_c_out_of_the_box/d0hthzr/][here]]
+- More on ycmd setup [[https://www.reddit.com/r/emacs/comments/7wzstc/emacs_as_a_c_ide_martin_sosics_blog/][here]]
+#+BEGIN_SRC emacs-lisp
+    ;; Snippets
+    (use-package yasnippet
+      :ensure t
+      :diminish yas-minor-mode
+      :init (yas-global-mode t))
+
+    ;; Autocomplete
+    (use-package company
+      :defer 10
+      :diminish company-mode
+      ;; :bind (:map company-active-map
+      ;;             ("M-j" . company-select-next)
+      ;;             ("M-k" . company-select-previous))
+      :preface
+      ;; enable yasnippet everywhere
+      (defvar company-mode/enable-yas t
+        "Enable yasnippet for all backends.")
+      (defun company-mode/backend-with-yas (backend)
+        (if (or 
+             (not company-mode/enable-yas) 
+             (and (listp backend) (member 'company-yasnippet backend)))
+            backend
+          (append (if (consp backend) backend (list backend))
+                  '(:with company-yasnippet))))
+
+      :init (global-company-mode t)
+      :config
+      ;; no delay no autocomplete
+      (validate-setq
+       company-idle-delay 0
+       company-minimum-prefix-length 2
+       company-tooltip-limit 20)
+
+      (validate-setq company-backends 
+                     (mapcar #'company-mode/backend-with-yas company-backends)))
+
+(setq company-global-modes '(not org-mode))
+
+
+
+  ;; Code-comprehension server
+  ;; (use-package ycmd
+  ;;   :ensure t
+  ;;   :init (add-hook 'c++-mode-hook #'ycmd-mode)
+  ;;   :config
+  ;;   (set-variable 'ycmd-server-command '("python" "/home/gfoil/projects/ycmd/ycmd/"))
+
+  ;;   ;; Default ycmd config file:
+  ;;   (set-variable 'ycmd-global-config (expand-file-name "/home/gfoil/dotfiles/emacs/ycm_conf.py"))
+
+  ;;   ;; Use this if you want project-specific ycmd configs.
+  ;;   ;; Set in ~/Dropbox/personal/emacs_secrets.el
+  ;;   ;; (set-variable 'ycmd-extra-conf-whitelist '("~/Repos/*"))
+
+  ;;   (use-package company-ycmd
+  ;;     :ensure t
+  ;;     :init (company-ycmd-setup)
+  ;;     :config (add-to-list 'company-backends (company-mode/backend-with-yas 'company-ycmd))))
+
+  ;; On-the-fly syntax checking
+  (use-package flycheck
+    :ensure t
+    :diminish flycheck-mode
+    :init (global-flycheck-mode t))
+
+  ;; (use-package flycheck-ycmd
+  ;;   :commands (flycheck-ycmd-setup)
+  ;;   :init (add-hook 'ycmd-mode-hook 'flycheck-ycmd-setup))
+
+  ;; ;; Show argument list in echo area
+  ;; (use-package eldoc
+  ;;   :diminish eldoc-mode
+  ;;   :init (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup))
+#+END_SRC
+** org mode latex
+#+BEGIN_SRC emacs-lisp
+(require 'ox-latex)
+(unless (boundp 'org-latex-classes)
+  (setq org-latex-classes nil))
+;;(add-to-list 'org-latex-classes
+;;             '("article"
+;;               "\\documentclass{article}"
+;;               ("\\section{%s}" . "\\section*{%s}")))  
+(add-to-list 'org-latex-classes
+             '("article"
+               "\\documentclass{article}"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+#+END_SRC
+** cmake mode
+#+BEGIN_SRC emacs-lisp
+; Add cmake listfile names to the mode list.
+(setq auto-mode-alist
+	  (append
+	   '(("CMakeLists\\.txt\\'" . cmake-mode))
+	   '(("\\.cmake\\'" . cmake-mode))
+	   auto-mode-alist))
+
+(require 'cmake-mode)
+#+END_SRC
 ** ace window
 #+BEGIN_SRC emacs-lisp
 (use-package ace-window
@@ -173,7 +291,7 @@ By default save all ~ files in this directory:
 
 (global-set-key (kbd "M-p") 'z/swap-windows)
 
-(setq aw-keys '(?2 ?3 ?1 ?4 ?5 ?6 ?7 ?8 ?9))
+(setq aw-keys '(?3 ?4 ?1 ?2 ?5 ?6 ?7 ?8 ?9))
 #+END_SRC
 ** elfeed
 #+BEGIN_SRC emacs-lisp
@@ -216,6 +334,7 @@ By default save all ~ files in this directory:
 
          :init
          ;; restore on load (even before you require bm)
+         (setq bm-repository-file "~/.emacs.d/bm-repository")
          (setq bm-restore-repository-on-load t)
 
 
@@ -311,7 +430,6 @@ By default save all ~ files in this directory:
 (org-ac/config-default)
 ;;(ac-set-trigger-key "TAB")
 #+END_SRC
-
 ** Sunshine
 #+BEGIN_SRC emacs-lisp
 (require 'sunshine)
@@ -752,6 +870,20 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "multimarkdown"))
 #+END_SRC
+** appt
+#+BEGIN_SRC emacs-lisp
+(require 'appt)
+(setq appt-message-warning-time 0)      ; 0 minute time before warning
+(setq diary-file "~/Dropbox/Personal/emacs_appt_warnings.txt")
+#+END_SRC
+** Elpy
+#+BEGIN_SRC emacs-lisp
+(elpy-enable)
+
+;; For jupyter integration
+;; (setq python-shell-interpreter "jupyter"
+;;     python-shell-interpreter-args "console --simple-prompt")
+#+END_SRC
 * Keybinds
 There are also a few of these sprinkled in above sections that are specific to certain modules.
 #+BEGIN_SRC emacs-lisp
@@ -982,6 +1114,9 @@ There are also a few of these sprinkled in above sections that are specific to c
 #+BEGIN_SRC emacs-lisp
 ;; show line number:
 (setq line-number-mode t)
+
+;; Windows management (winner-undo and winner-redo to undo/redo windows configurations)
+(winner-mode 1)
 
 ;; Highlight the current line
 (global-hl-line-mode 1)
