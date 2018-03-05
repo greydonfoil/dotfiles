@@ -111,6 +111,8 @@ alias wget="wget -c"
 alias meshws="cd /home/gfoil/mesh/code/catkin_ws/src/meshnav-dev/src/ && cdpwd && screen"
 alias mesh="ls"
 alias grep="grep --color=auto"
+alias swapcaps='setxkbmap -option ctrl:swapcaps'
+alias fixtty="sudo kbd_mode -s"
 
 export PATH="$PATH:/usr0/home/gfoil/bin"
 export LD_LIBRARY_PATH=/usr0/home/gfoil/bin:/usr/X11R6/lib:$LD_LIBRARY_PATH

@@ -109,6 +109,11 @@ M-x all-the-icons
 ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each
 ;; theme may have their own settings.
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+(add-to-list 'load-path "~/.emacs.d/themes/")
+
+;; for some good daytime themes
+(require 'color-theme-tomorrow)
+
 (load-theme 'gf-doom-molokai t)
 
 ;; Enable flashing mode-line on errors
