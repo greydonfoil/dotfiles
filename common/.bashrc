@@ -61,7 +61,7 @@ export LD_LIBRARY_PATH=/usr0/home/gfoil/bin:/usr/X11R6/lib:$LD_LIBRARY_PATH
 export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LIBRARY_PATH
 export GREP_OPTIONS='--color=auto'
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig
-export PYTHONPATH=/usr/local/lib/python2.7/dist-packages:$PYTHONPATH
+#export PYTHONPATH=/usr/local/lib/python2.7/dist-packages:$PYTHONPATH
 #export GREP_COLOR='1;32'
 
 function cdpwd {
@@ -76,10 +76,10 @@ function matrix {
 # added by Anaconda 1.5.0 installer
 #export PATH="/home/gfoil/bin/anaconda/bin:$PATH"
 # source /opt/ros/kinetic/setup.bash
-source /opt/ros/indigo/setup.bash
+#source /opt/ros/indigo/setup.bash
 
 # For mesh ODE
 export ODE_DIR=/usr/local
-if [ -f "${HOME}/mesh/code/catkin_ws/install/setup.bash" ]; then
-    source ${HOME}/mesh/code/catkin_ws/install/setup.bash
-fi
+# if [ -f "${HOME}/mesh/code/catkin_ws/install/setup.bash" ]; then
+#     source ${HOME}/mesh/code/catkin_ws/install/setup.bash
+# fi
