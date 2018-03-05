@@ -8,6 +8,11 @@
 /emacs/.emacs.d/backups/
 /emacs/.emacs.d/auto-save-list/
 /emacs/.emacs.d/url/
+/emacs/.emacs.d/org-gcal/
+/emacs/.emacs.d/.emacs.desktop
+/emacs/.emacs.d/.emacs.desktop.lock
+/emacs/.emacs.d/recentf
+/emacs/.emacs.d/session*
 /emacs/.emacs.d/settings.el
 /emacs/.emacs.d/settings.org_archive
 *~
