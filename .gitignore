@@ -13,6 +13,10 @@
 /emacs/.emacs.d/.emacs.desktop.lock
 /emacs/.emacs.d/recentf
 /emacs/.emacs.d/session*
+/emacs/.emacs.d/.cache/
+/emacs/.emacs.d/games/
+/emacs/.emacs.d/abbrev_defs
 /emacs/.emacs.d/settings.el
 /emacs/.emacs.d/settings.org_archive
 *~
+*#
