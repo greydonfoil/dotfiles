@@ -17,20 +17,20 @@ use-package loads the package if it's available. If not it logs to *Messages*. [
 
 ** Package setup
 #+BEGIN_SRC emacs-lisp
-;; -- for new packages, you might have to run: M-x package-refresh-contents
-;; to get melpa to work on windows: https://gnutls.org/download.html
-(require 'package)
-(setq package-archives
-      '(("gnu" . "http://elpa.gnu.org/packages/")
-        ("org" . "http://orgmode.org/elpa/")
-;;        ("melpa" . "https://melpa.org/packages/")
-        ("melpa-stable" . "https://stable.melpa.org/packages/")))
-;;(add-to-list 'package-archives
-;;             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-;;;(add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
+  ;; -- for new packages, you might have to run: M-x package-refresh-contents
+  ;; to get melpa to work on windows: https://gnutls.org/download.html
+  (require 'package)
+  (setq package-archives
+        '(("gnu" . "http://elpa.gnu.org/packages/")
+          ("org" . "http://orgmode.org/elpa/")
+         ("melpa" . "https://melpa.org/packages/")
+          ("melpa-stable" . "https://stable.melpa.org/packages/")))
+  ;;(add-to-list 'package-archives
+  ;;             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+  ;;;(add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
 
-;; uncomment this if you want to check package archives at init
-;;(package-initialize)
+  ;; uncomment this if you want to check package archives at init
+  ;;(package-initialize)
 #+END_SRC
 
 ** Automatic package install
@@ -65,6 +65,11 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
           projectile           ; emacs project development
           org-gcal             ; google calendar integration with org
           elfeed               ; RSS/feed reader
+          elfeed-org           ; org mode organization for elfeed
+          elfeed-goodies       ; some elfeed extras
+          eyebrowse            ; window/workspace management
+          spacemacs-theme      ; needed for spaceline
+          spaceline            ; modeline tweaks
           hideshow             ; code folding
           sgml-mode            ; tools
           nxml-mode            ; XML tools
@@ -160,6 +165,26 @@ By default save all ~ files in this directory:
 #+END_SRC
 
 * Package Initialization
+** Eyebrowse (window configuration/workspace switching)
+[[https://github.com/wasamasa/eyebrowse][github page]]
+#+BEGIN_SRC emacs-lisp
+  (use-package eyebrowse
+    :ensure t
+    :init (eyebrowse-mode t))
+#+END_SRC
+** Spaceline (modeline customization)
+Spaceline [[https://github.com/TheBB/spaceline][github page]]
+#+BEGIN_SRC emacs-lisp
+  (use-package spaceline
+    :demand t
+    :init
+    (setq powerline-height 20)
+    (setq powerline-default-separator 'arrow-fade)
+    :config
+    (require 'spaceline-config)
+    ;; (spaceline-emacs-theme))
+   (spaceline-spacemacs-theme))
+#+END_SRC
 ** Code validation
 #+BEGIN_SRC emacs-lisp
 ;; Validation of setq and stuff
@@ -299,23 +324,76 @@ By default save all ~ files in this directory:
 (setq aw-keys '(?3 ?4 ?1 ?2 ?5 ?6 ?7 ?8 ?9))
 #+END_SRC
 ** elfeed
+Some good functions [[http://pragmaticemacs.com/emacs/read-your-rss-feeds-in-emacs-with-elfeed/][here]] for working with elfeed across multiple computers
 #+BEGIN_SRC emacs-lisp
-(setq elfeed-feeds
-      '(("http://nullprogram.com/feed/" emacs)
-        ("http://planet.emacsen.org/atom.xml" emacs)
-        ("http://sachachua.com/blog/category/emacs-news/feed/" emacs)
-        ("https://www.reddit.com/r/dailyprogrammer/.rss" programming)
-        ("https://www.reddit.com/r/machinelearning/.rss" programming)
-        ("https://herbsutter.com/feed/" programming)
-        ("http://www.datatau.com/rss" machine-learning)
-        ("http://news.startup.ml/rss" machine-learning)
-        ("https://machinelearningmastery.com/blog/feed/" machine-learning)
-        ("https://www.reddit.com/r/cpp/.rss" programming)
-        ("https://askldjd.com/feed/" programming)
-        ("https://blog.knatten.org/feed/" programming)
-        ("https://feeds.feedburner.com/CppTruths?format=xml" programming)
-        ("http://codesynthesis.com/~boris/blog/feed/" programming)
-        ("http://nedroid.com/feed/" webcomic)))
+  (setq elfeed-db-directory "~/Dropbox/Personal/elfeed_database")
+
+
+  (defun elfeed-mark-all-as-read ()
+        (interactive)
+        (mark-whole-buffer)
+        (elfeed-search-untag-all-unread))
+
+
+  ;;functions to support syncing .elfeed between machines
+  ;;makes sure elfeed reads index from disk before launching
+  (defun bjm/elfeed-load-db-and-open ()
+    "Wrapper to load the elfeed db from disk before opening"
+    (interactive)
+    (elfeed-db-load)
+    (elfeed)
+    (elfeed-search-update--force))
+
+  ;;write to disk when quiting
+  (defun bjm/elfeed-save-db-and-bury ()
+    "Wrapper to save the elfeed db to disk before burying buffer"
+    (interactive)
+    (elfeed-db-save)
+    (quit-window))
+
+  ;; (defalias 'elfeed-toggle-star
+  ;;   (elfeed-expose #'elfeed-search-toggle-all 'star))
+
+  (use-package elfeed
+    :ensure t
+    :bind (:map elfeed-search-mode-map
+            ("q" . bjm/elfeed-save-db-and-bury)
+            ("Q" . bjm/elfeed-save-db-and-bury)
+            ("m" . elfeed-toggle-star)
+            ("M" . elfeed-toggle-star)
+            )
+    :config
+    (setq elfeed-feeds
+        '(("http://nullprogram.com/feed/" emacs)
+          ("http://planet.emacsen.org/atom.xml" emacs)
+          ("http://sachachua.com/blog/category/emacs-news/feed/" emacs)
+          ("https://www.reddit.com/r/dailyprogrammer/.rss" programming)
+          ("https://www.reddit.com/r/machinelearning/.rss" programming)
+          ("https://herbsutter.com/feed/" programming)
+          ("http://www.datatau.com/rss" machine-learning)
+          ("http://news.startup.ml/rss" machine-learning)
+          ("http://pragmaticemacs.com/feed/" emacs)
+          ("https://machinelearningmastery.com/blog/feed/" machine-learning)
+          ("https://www.reddit.com/r/cpp/.rss" programming)
+          ("https://askldjd.com/feed/" programming)
+          ("https://blog.knatten.org/feed/" programming)
+          ("https://feeds.feedburner.com/CppTruths?format=xml" programming)
+          ("http://codesynthesis.com/~boris/blog/feed/" programming)
+          ("http://nedroid.com/feed/" webcomic)))
+    )
+
+  ;; (use-package elfeed-goodies
+  ;;   :ensure t
+  ;;   :config
+  ;;   (elfeed-goodies/setup))
+
+
+  ;; (use-package elfeed-org
+  ;;   :ensure t
+  ;;   :config
+  ;;   (elfeed-org)
+  ;;   (setq rmh-elfeed-org-files (list "~/Dropbox/shared/elfeed.org")))
+
 #+END_SRC
 ** magit and magithub
 [[https://github.com/vermiculus/magithub][link to magithub]]
@@ -419,21 +497,22 @@ By default save all ~ files in this directory:
 (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
 #+END_SRC
 ** Autocomplete
+Deprecated in favor of company-mode
 #+BEGIN_SRC emacs-lisp
-(require 'auto-complete)
-(require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/modules/ac-dict")
-(ac-config-default)
-(define-key ac-completing-map "\C-m" nil)
-(define-key ac-complete-mode-map [tab] 'ac-expand)
+  ;; (require 'auto-complete)
+  ;; (require 'auto-complete-config)
+  ;; (add-to-list 'ac-dictionary-directories "~/.emacs.d/modules/ac-dict")
+  ;; (ac-config-default)
+  ;; (define-key ac-completing-map "\C-m" nil)
+  ;; (define-key ac-complete-mode-map [tab] 'ac-expand)
 
-;; Make sure it's turned on in org mode. Alternative to org-ac
-(add-to-list 'ac-modes 'org-mode)
+  ;; ;; Make sure it's turned on in org mode. Alternative to org-ac
+  ;; (add-to-list 'ac-modes 'org-mode)
 
-;; Org autocomplete
-(require 'org-ac)
-(org-ac/config-default)
-;;(ac-set-trigger-key "TAB")
+  ;; ;; Org autocomplete
+  ;; (require 'org-ac)
+  ;; (org-ac/config-default)
+  ;; ;;(ac-set-trigger-key "TAB")
 #+END_SRC
 ** Sunshine
 #+BEGIN_SRC emacs-lisp

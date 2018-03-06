@@ -48,7 +48,7 @@
  '(org-trello-files (quote ("~/Dropbox/org/trello/mesh.trello")) nil (org-trello))
  '(package-selected-packages
    (quote
-	(validate flycheck-ycmd flycheck company-ycmd ycmd elpy with-editor which-key swiper s rainbow-delimiters projectile php-mode origami org-bullets org magithub ivy gruvbox-theme git-commit ghub ghub+ f dash-functional dash ctable clojure-mode bind-key avy async apiwrap all-the-icons alert web-mode treemacs-projectile treemacs nyan-mode cmake-mode yaml-mode visual-regexp-steroids elfeed org-gcal ace-window doom-themes sunshine ivy-hydra hydra use-package undo-tree all-the-icons-ivy magit markdown-mode counsel)))
+	(spacemacs-theme eyebrowse spaceline-all-the-icons spaceline yasnippet xterm-color pyvenv find-file-in-project epl company elfeed-goodies validate flycheck-ycmd flycheck company-ycmd ycmd elpy with-editor which-key swiper s rainbow-delimiters projectile php-mode origami org-bullets org magithub ivy gruvbox-theme git-commit ghub ghub+ f dash-functional dash ctable clojure-mode bind-key avy async apiwrap all-the-icons alert web-mode treemacs-projectile treemacs nyan-mode cmake-mode yaml-mode visual-regexp-steroids elfeed org-gcal ace-window doom-themes sunshine ivy-hydra hydra use-package undo-tree all-the-icons-ivy magit markdown-mode counsel)))
  '(paren-mode (quote paren) nil (paren))
  '(tab-stop-list
    (quote
