@@ -36,58 +36,58 @@ use-package loads the package if it's available. If not it logs to *Messages*. [
 ** Automatic package install
 Copied from [[https://github.com/larstvei/dot-emacs][here.]]
 #+BEGIN_SRC emacs-lisp
-(let* ((packages
-        '(ivy                  ; Better movement between files
-          swiper               ; Better movement between files
-          counsel              ; Better search
-          all-the-icons        ; Icon support for file types
-          all-the-icons-ivy    ; Icon support in ivy
-          rainbow-delimiters   ; Colors parentheses based on depth
-          undo-tree            ; Display a navigable undo tree
-          use-package          ; loads packages if available. If not, logs errors to *Messages*
-          badwolf-theme        ; Emacs color theme
-          gruvbox-theme        ; Emacs color theme
-          doom-themes          ; Color theme
-          jedi                 ; Python auto-completion for Emacs
-          magit                ; control Git from Emacs
-          magithub             ; Github integration for Magit
-          symon                ; small system monitor
-          markdown-mode        ; Emacs Major mode for Markdown-formatted files
-          ;;auto-complete        ; auto-complete
-          company              ; auto-complete
-          ace-window           ; better window swapping
-          org-trello           ; integration between org and trello
-          org-ac               ; Auto-complete for org
-          org-bullets          ; Improved bullet rendering
-          xterm-color          ; color support for the terminal
-          smooth-scrolling     ; smooth mouse scrolling
-          which-key            ; Shows a popup with possible commands and their shortcuts
-          projectile           ; emacs project development
-          org-gcal             ; google calendar integration with org
-          elfeed               ; RSS/feed reader
-          elfeed-org           ; org mode organization for elfeed
-          elfeed-goodies       ; some elfeed extras
-          eyebrowse            ; window/workspace management
-          spacemacs-theme      ; needed for spaceline
-          spaceline            ; modeline tweaks
-          hideshow             ; code folding
-          sgml-mode            ; tools
-          nxml-mode            ; XML tools
-          s                    ; dependency
-          dash                 ; dependency
-          origami              ; Code folding
-          bm                   ; visible bookmarks
-          php-mode             ; php mode
-          cmake-mode             ; cmake mode
-          org))                ; Outline-based notes management and organizer
-       ;; Remove all packages already installed
-       (packages (remove-if 'package-installed-p packages)))
-  (when packages
-    (ignore-errors;; (package-refresh-contents) ;; uncomment to refresh package contents on startup
-                   (mapcar 'package-install packages)
-                   ;; This package is only relevant for Mac OS X.
-                   (when (memq window-system '(mac ns))
-                     (package-install 'exec-path-from-shell)))))
+  (let* ((packages
+          '(ivy                  ; Better movement between files
+            swiper               ; Better movement between files
+            counsel              ; Better search
+            all-the-icons        ; Icon support for file types
+            all-the-icons-ivy    ; Icon support in ivy
+            rainbow-delimiters   ; Colors parentheses based on depth
+            undo-tree            ; Display a navigable undo tree
+            use-package          ; loads packages if available. If not, logs errors to *Messages*
+            badwolf-theme        ; Emacs color theme
+            gruvbox-theme        ; Emacs color theme
+            doom-themes          ; Color theme
+            jedi                 ; Python auto-completion for Emacs
+            magit                ; control Git from Emacs
+            magithub             ; Github integration for Magit
+            symon                ; small system monitor
+            markdown-mode        ; Emacs Major mode for Markdown-formatted files
+            ;;auto-complete        ; auto-complete
+            company              ; auto-complete
+            ace-window           ; better window swapping
+            ;; org-trello           ; integration between org and trello
+            ;; org-ac               ; Auto-complete for org
+            org-bullets          ; Improved bullet rendering
+            xterm-color          ; color support for the terminal
+            smooth-scrolling     ; smooth mouse scrolling
+            which-key            ; Shows a popup with possible commands and their shortcuts
+            projectile           ; emacs project development
+            org-gcal             ; google calendar integration with org
+            elfeed               ; RSS/feed reader
+            elfeed-org           ; org mode organization for elfeed
+            elfeed-goodies       ; some elfeed extras
+            eyebrowse            ; window/workspace management
+            spacemacs-theme      ; needed for spaceline
+            spaceline            ; modeline tweaks
+            hideshow             ; code folding
+            sgml-mode            ; tools
+            nxml-mode            ; XML tools
+            s                    ; dependency
+            dash                 ; dependency
+            origami              ; Code folding
+            bm                   ; visible bookmarks
+            php-mode             ; php mode
+            cmake-mode             ; cmake mode
+            org))                ; Outline-based notes management and organizer
+         ;; Remove all packages already installed
+         (packages (remove-if 'package-installed-p packages)))
+    (when packages
+      (ignore-errors;; (package-refresh-contents) ;; uncomment to refresh package contents on startup
+                     (mapcar 'package-install packages)
+                     ;; This package is only relevant for Mac OS X.
+                     (when (memq window-system '(mac ns))
+                       (package-install 'exec-path-from-shell)))))
 #+END_SRC
 
 ** Manual package install
@@ -567,11 +567,12 @@ Origami doesn't currently work the way I want it to. Try hideshow instead.
 (define-key nxml-mode-map (kbd "C-c h") 'hs-toggle-hiding)
 #+END_SRC
 ** Smooth scrolling
+Too laggy ATM
 #+BEGIN_SRC emacs-lisp
-(use-package smooth-scrolling
-  :ensure t
-  :config
-  (smooth-scrolling-mode 1))
+  ;; (use-package smooth-scrolling
+  ;;   :ensure t
+  ;;   :config
+  ;;   (smooth-scrolling-mode 1))
 #+END_SRC
 ** org trello
 #+BEGIN_SRC emacs-lisp
@@ -1217,50 +1218,52 @@ same directory as the org-buffer and insert a link to this file."
 #+END_SRC
 * Misc
 #+BEGIN_SRC emacs-lisp
-;; show line number:
-(setq line-number-mode t)
+  ;; show line number:
+  (setq line-number-mode t)
 
-;; Windows management (winner-undo and winner-redo to undo/redo windows configurations)
-(winner-mode 1)
+  (setq auto-window-vscroll nil)
 
-;; Highlight the current line
-(global-hl-line-mode 1)
+  ;; Windows management (winner-undo and winner-redo to undo/redo windows configurations)
+  (winner-mode 1)
 
-;;; Display time and date on the status line
-(setq display-time-day-and-date t)
-(display-time)
+  ;; Highlight the current line
+  (global-hl-line-mode 1)
 
-;; restore the previous desktop on restart
-(desktop-save-mode 1)
+  ;;; Display time and date on the status line
+  (setq display-time-day-and-date t)
+  (display-time)
 
-;;; Display an area as highlighted when you select it
-(setq-default transient-mark-mode t)
+  ;; restore the previous desktop on restart
+  (desktop-save-mode 1)
 
-;;; Case-insensitive file-complete
-(setq read-file-name-completion-ignore-case t)
-(setq completion-ignore-case t)
+  ;;; Display an area as highlighted when you select it
+  (setq-default transient-mark-mode t)
 
-;;; show matching parens
-(show-paren-mode t)
+  ;;; Case-insensitive file-complete
+  (setq read-file-name-completion-ignore-case t)
+  (setq completion-ignore-case t)
 
-;; Make all "yes or no" prompts show "y or n" instead
-(fset 'yes-or-no-p 'y-or-n-p)
+  ;;; show matching parens
+  (show-paren-mode t)
 
-;; Open unidentified files in text mode
-(setq default-major-mode 'text-mode)
-(setq-default indent-tabs-mode t)
+  ;; Make all "yes or no" prompts show "y or n" instead
+  (fset 'yes-or-no-p 'y-or-n-p)
 
-;;; set mode depending on file name
-(setq auto-mode-alist 
-      '(("\\.org$" . org-mode) ("\\.py$" . python-mode) ("\\.esp$" . perl-mode) ("\\.pm$" . perl-mode) ("\\.sql$" . sql-mode) ("\\.text$" . text-mode) ("\\.notes$" . text-mode) ("\\.tmpl" . xml-mode) ("\\.c$" . c-mode) ("\\.h$" . c++-mode) ("\\.C$" . c++-mode) ("\\.cpp$" . c++-mode) ("\\.cc$" . c++-mode) ("\\.H$" . c++-mode) ("\\.tex$" . TeX-mode) ("\\.el$" . emacs-lisp-mode) ("\\.scm$" . scheme-mode) ("\\.l$" . lisp-mode) ("\\.lisp$" . lisp-mode) ("\\.f$" . fortran-mode) ("\\.mss$" . scribe-mode) ("\\.pl$" . perl-mode) ("\\.TeX$" . TeX-mode) ("\\.sty$" . LaTeX-mode) ("\\.bbl$" . LaTeX-mode) ("\\.bib$" . text-mode) ("\\.article$" . text-mode) ("\\.letter$" . text-mode) ("\\.texinfo$" . texinfo-mode) ("\\.lsp$" . lisp-mode) ("\\.prolog$" . prolog-mode) ("^/tmp/Re" . text-mode) ("^/tmp/fol/" . text-mode) ("/Message[0-9]*$" . text-mode) ("\\.y$" . c-mode) ("\\.scm.[0-9]*$" . scheme-mode) ("[]>:/]\\..*emacs" . emacs-lisp-mode) ("\\.ml$" . lisp-mode) ("\\.x$" . c-mode) ("\\.md" . markdown-mode) ("\\.launch" . xml-mode)))
+  ;; Open unidentified files in text mode
+  (setq default-major-mode 'text-mode)
+  (setq-default indent-tabs-mode t)
 
-(require 'dabbrev)
+  ;;; set mode depending on file name
+  (setq auto-mode-alist 
+        '(("\\.org$" . org-mode) ("\\.py$" . python-mode) ("\\.esp$" . perl-mode) ("\\.pm$" . perl-mode) ("\\.sql$" . sql-mode) ("\\.text$" . text-mode) ("\\.notes$" . text-mode) ("\\.tmpl" . xml-mode) ("\\.c$" . c-mode) ("\\.h$" . c++-mode) ("\\.C$" . c++-mode) ("\\.cpp$" . c++-mode) ("\\.cc$" . c++-mode) ("\\.H$" . c++-mode) ("\\.tex$" . TeX-mode) ("\\.el$" . emacs-lisp-mode) ("\\.scm$" . scheme-mode) ("\\.l$" . lisp-mode) ("\\.lisp$" . lisp-mode) ("\\.f$" . fortran-mode) ("\\.mss$" . scribe-mode) ("\\.pl$" . perl-mode) ("\\.TeX$" . TeX-mode) ("\\.sty$" . LaTeX-mode) ("\\.bbl$" . LaTeX-mode) ("\\.bib$" . text-mode) ("\\.article$" . text-mode) ("\\.letter$" . text-mode) ("\\.texinfo$" . texinfo-mode) ("\\.lsp$" . lisp-mode) ("\\.prolog$" . prolog-mode) ("^/tmp/Re" . text-mode) ("^/tmp/fol/" . text-mode) ("/Message[0-9]*$" . text-mode) ("\\.y$" . c-mode) ("\\.scm.[0-9]*$" . scheme-mode) ("[]>:/]\\..*emacs" . emacs-lisp-mode) ("\\.ml$" . lisp-mode) ("\\.x$" . c-mode) ("\\.md" . markdown-mode) ("\\.launch" . xml-mode)))
 
-
-(require 'visual-regexp)
-;;(require 'visual-regexp-steroids)
-(define-key global-map (kbd "C-c r") 'vr/replace)
-(define-key global-map (kbd "C-c q") 'vr/query-replace)
+  (require 'dabbrev)
 
 
+  (require 'visual-regexp)
+  ;;(require 'visual-regexp-steroids)
+  (define-key global-map (kbd "C-c r") 'vr/replace)
+  (define-key global-map (kbd "C-c q") 'vr/query-replace)
+
+  ;; (setq require-final-newline nil)
 #+END_SRC

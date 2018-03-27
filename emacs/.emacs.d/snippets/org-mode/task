@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: task
+# key: task
+# --
+** TODO $1 [/]
+- [ ] $2
