@@ -100,11 +100,13 @@ alias meshws="cd /home/gfoil/mesh/code/catkin_ws/src/meshnav-dev/src/ && cdpwd &
 alias mesh="source ~/mesh/code/catkin_ws/install/setup.zsh"
 alias tut="source ~/ECR/tut/install/setup.zsh"
 alias druid="source ~/ECR/druid/ces18_demo/catkin_ws/install/setup.zsh"
+alias ads="source ~/ECR/altering_driving_scenes/catkin_ws/devel/setup.zsh"
 alias em="source ~/projects/Evidence_Mesh/install/setup.zsh"
 alias grep="grep --color=auto"
 alias swapcaps='setxkbmap -option ctrl:swapcaps'
 alias fixtty="sudo kbd_mode -s"
 alias gputop="watch -n 0.1 nvidia-smi"
+alias sshmesh="ssh demo@edgecase.zapto.org -i ~/.ssh/id_rsa"
 alias kinetic="source /opt/ros/kinetic/setup.zsh"
 
 export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LIBRARY_PATH
@@ -128,8 +130,9 @@ export NVIDIA_COMPUTE=compute_61
 
 # export PATH=/home/gfoil/anaconda3/bin:$PATH
 
-# source /opt/ros/kinetic/setup.zsh
-#source /opt/ros/kinetic/setup.zsh
+if [ -f "/opt/ros/kinetic/setup.zsh" ]; then
+	source /opt/ros/kinetic/setup.zsh
+fi
 
 # For mesh ODE
 export ODE_DIR=/usr/local
@@ -145,7 +148,13 @@ export TERM=xterm-256color
 unsetopt share_history
 
 # For cuda:
-export PATH=/usr/local/cuda-8.0/bin${PATH:+:${PATH}}
+export PATH=/usr/local/cuda-8.0/bin:${PATH:+:${PATH}}
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64/
 export CUDA_HOME=/usr/local/cuda-8.0
 
+# For Amazon AWS:
+export PATH=~/.local/bin:$PATH
+source ~/.local/bin/aws_zsh_completer.sh
+
+
+. /home/gfoil/projects/torch/install/bin/torch-activate

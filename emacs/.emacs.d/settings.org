@@ -196,79 +196,91 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 - Some recommendations on using ycmd with ros [[https://www.reddit.com/r/vim/comments/4835a7/youcompleteme_c_out_of_the_box/d0hthzr/][here]]
 - More on ycmd setup [[https://www.reddit.com/r/emacs/comments/7wzstc/emacs_as_a_c_ide_martin_sosics_blog/][here]]
 #+BEGIN_SRC emacs-lisp
-    ;; Snippets
-    (use-package yasnippet
+      ;; Snippets
+      (use-package yasnippet
+        :ensure t
+        :diminish yas-minor-mode
+        :init (yas-global-mode t))
+
+      ;; Autocomplete
+      (use-package company
+        :defer 10
+        :diminish company-mode
+        ;; :bind (:map company-active-map
+        ;;             ("M-j" . company-select-next)
+        ;;             ("M-k" . company-select-previous))
+        :preface
+        ;; enable yasnippet everywhere
+        (defvar company-mode/enable-yas t
+          "Enable yasnippet for all backends.")
+        (defun company-mode/backend-with-yas (backend)
+          (if (or 
+               (not company-mode/enable-yas) 
+               (and (listp backend) (member 'company-yasnippet backend)))
+              backend
+            (append (if (consp backend) backend (list backend))
+                    '(:with company-yasnippet))))
+
+        :init (global-company-mode t)
+        :config
+        ;; no delay no autocomplete
+        (validate-setq
+         company-idle-delay 0
+         company-minimum-prefix-length 2
+         company-tooltip-limit 20)
+
+        (validate-setq company-backends 
+                       (mapcar #'company-mode/backend-with-yas company-backends)))
+
+  (setq company-global-modes '(not org-mode))
+
+  ;; better selection box for company - requires 26.1
+  ;; (use-package company-box
+  ;;   :hook (company-mode . company-box-mode))
+
+
+
+    ;; Code-comprehension server
+    ;; (use-package ycmd
+    ;;   :ensure t
+    ;;   :init (add-hook 'c++-mode-hook #'ycmd-mode)
+    ;;   :config
+    ;;   (set-variable 'ycmd-server-command '("python" "/home/gfoil/projects/ycmd/ycmd/"))
+
+    ;;   ;; Default ycmd config file:
+    ;;   (set-variable 'ycmd-global-config (expand-file-name "/home/gfoil/dotfiles/emacs/ycm_conf.py"))
+
+    ;;   ;; Use this if you want project-specific ycmd configs.
+    ;;   ;; Set in ~/Dropbox/personal/emacs_secrets.el
+    ;;   ;; (set-variable 'ycmd-extra-conf-whitelist '("~/Repos/*"))
+
+    ;;   (use-package company-ycmd
+    ;;     :ensure t
+    ;;     :init (company-ycmd-setup)
+    ;;     :config (add-to-list 'company-backends (company-mode/backend-with-yas 'company-ycmd))))
+
+    ;; On-the-fly syntax checking
+    (use-package flycheck
       :ensure t
-      :diminish yas-minor-mode
-      :init (yas-global-mode t))
+      :diminish flycheck-mode
+      :init (global-flycheck-mode t))
 
-    ;; Autocomplete
-    (use-package company
-      :defer 10
-      :diminish company-mode
-      ;; :bind (:map company-active-map
-      ;;             ("M-j" . company-select-next)
-      ;;             ("M-k" . company-select-previous))
-      :preface
-      ;; enable yasnippet everywhere
-      (defvar company-mode/enable-yas t
-        "Enable yasnippet for all backends.")
-      (defun company-mode/backend-with-yas (backend)
-        (if (or 
-             (not company-mode/enable-yas) 
-             (and (listp backend) (member 'company-yasnippet backend)))
-            backend
-          (append (if (consp backend) backend (list backend))
-                  '(:with company-yasnippet))))
+  (eval-after-load "flymake"
+    '(progn
+      (defun flymake-after-change-function (start stop len)
+        "Start syntax check for current buffer if it isn't already running."
+        ;; Do nothing, don't want to run checks until I save.
+        )))
 
-      :init (global-company-mode t)
-      :config
-      ;; no delay no autocomplete
-      (validate-setq
-       company-idle-delay 0
-       company-minimum-prefix-length 2
-       company-tooltip-limit 20)
+      (setq flymake-no-changes-timeout 5)
+    ;; (use-package flycheck-ycmd
+    ;;   :commands (flycheck-ycmd-setup)
+    ;;   :init (add-hook 'ycmd-mode-hook 'flycheck-ycmd-setup))
 
-      (validate-setq company-backends 
-                     (mapcar #'company-mode/backend-with-yas company-backends)))
-
-(setq company-global-modes '(not org-mode))
-
-
-
-  ;; Code-comprehension server
-  ;; (use-package ycmd
-  ;;   :ensure t
-  ;;   :init (add-hook 'c++-mode-hook #'ycmd-mode)
-  ;;   :config
-  ;;   (set-variable 'ycmd-server-command '("python" "/home/gfoil/projects/ycmd/ycmd/"))
-
-  ;;   ;; Default ycmd config file:
-  ;;   (set-variable 'ycmd-global-config (expand-file-name "/home/gfoil/dotfiles/emacs/ycm_conf.py"))
-
-  ;;   ;; Use this if you want project-specific ycmd configs.
-  ;;   ;; Set in ~/Dropbox/personal/emacs_secrets.el
-  ;;   ;; (set-variable 'ycmd-extra-conf-whitelist '("~/Repos/*"))
-
-  ;;   (use-package company-ycmd
-  ;;     :ensure t
-  ;;     :init (company-ycmd-setup)
-  ;;     :config (add-to-list 'company-backends (company-mode/backend-with-yas 'company-ycmd))))
-
-  ;; On-the-fly syntax checking
-  (use-package flycheck
-    :ensure t
-    :diminish flycheck-mode
-    :init (global-flycheck-mode t))
-
-  ;; (use-package flycheck-ycmd
-  ;;   :commands (flycheck-ycmd-setup)
-  ;;   :init (add-hook 'ycmd-mode-hook 'flycheck-ycmd-setup))
-
-  ;; ;; Show argument list in echo area
-  ;; (use-package eldoc
-  ;;   :diminish eldoc-mode
-  ;;   :init (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup))
+    ;; ;; Show argument list in echo area
+    ;; (use-package eldoc
+    ;;   :diminish eldoc-mode
+    ;;   :init (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup))
 #+END_SRC
 ** org mode latex
 #+BEGIN_SRC emacs-lisp
@@ -692,6 +704,7 @@ Too laggy ATM
   (define-key global-map "\C-cl" 'org-store-link)
   (define-key global-map "\C-ca" 'org-agenda)
   (setq org-log-done t)
+  (setq org-tags-column 0)
   (setq org-startup-truncated nil)
   (setq org-agenda-files '("~/Dropbox/org/"))
   (setq org-agenda-window-setup 'current-window)
