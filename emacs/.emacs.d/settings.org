@@ -43,15 +43,15 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
             all-the-icons        ; Icon support for file types
             all-the-icons-ivy    ; Icon support in ivy
             rainbow-delimiters   ; Colors parentheses based on depth
-            undo-tree            ; Display a navigable undo tree
+            ;; undo-tree            ; Display a navigable undo tree
             use-package          ; loads packages if available. If not, logs errors to *Messages*
-            badwolf-theme        ; Emacs color theme
-            gruvbox-theme        ; Emacs color theme
+            ;; badwolf-theme        ; Emacs color theme
+            ;; gruvbox-theme        ; Emacs color theme
             doom-themes          ; Color theme
             jedi                 ; Python auto-completion for Emacs
             magit                ; control Git from Emacs
             magithub             ; Github integration for Magit
-            symon                ; small system monitor
+            ;; symon                ; small system monitor
             markdown-mode        ; Emacs Major mode for Markdown-formatted files
             ;;auto-complete        ; auto-complete
             company              ; auto-complete
@@ -165,6 +165,18 @@ By default save all ~ files in this directory:
 #+END_SRC
 
 * Package Initialization
+** use-package usage:
+#+BEGIN_SRC bash
+(use-package evil-lisp-state ; the Melpa package name
+
+  :defer t ; autoload this package
+
+  :init ; Code to run immediately.
+  (setq evil-lisp-state-global nil)
+
+  :config ; Code to run after the package is loaded.
+  (abn/define-leader-keys "k" evil-lisp-state-map))
+#+END_SRC
 ** Eyebrowse (window configuration/workspace switching)
 [[https://github.com/wasamasa/eyebrowse][github page]]
 #+BEGIN_SRC emacs-lisp
@@ -172,18 +184,39 @@ By default save all ~ files in this directory:
     :ensure t
     :init (eyebrowse-mode t))
 #+END_SRC
+** Diminish (hide minor modes)
+Use to hide minor modes in the spaceline/powerline display
+#+BEGIN_SRC emacs-lisp
+(use-package diminish
+  :ensure t
+  :config
+  (diminish 'abbrev-mode)
+  (diminish 'which-key-mode)
+  (diminish 'org-indent-mode)
+  (diminish 'auto-revert-mode)
+  (diminish 'visual-line-mode)
+  (diminish 'highlight-indentation-mode)
+  (diminish 'elpy-mode)
+  (diminish 'flycheck-mode "fly")
+  (diminish 'ivy-mode))
+
+#+END_SRC
 ** Spaceline (modeline customization)
 Spaceline [[https://github.com/TheBB/spaceline][github page]]
 #+BEGIN_SRC emacs-lisp
-  (use-package spaceline
-    :demand t
-    :init
-    (setq powerline-height 20)
-    (setq powerline-default-separator 'arrow-fade)
-    :config
-    (require 'spaceline-config)
-    ;; (spaceline-emacs-theme))
-   (spaceline-spacemacs-theme))
+    (use-package spaceline
+      :demand t
+      :init
+      (setq powerline-height 20)
+      (setq powerline-default-separator 'wave)
+      :config
+      (require 'spaceline-config)
+      ;; (spaceline-emacs-theme))
+     (spaceline-spacemacs-theme))
+
+  (spaceline-toggle-buffer-size-off)
+  (spaceline-toggle-major-mode-off)
+  (spaceline-toggle-buffer-encoding-abbrev)
 #+END_SRC
 ** Code validation
 #+BEGIN_SRC emacs-lisp
@@ -204,7 +237,7 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 
       ;; Autocomplete
       (use-package company
-        :defer 10
+        :defer 1
         :diminish company-mode
         ;; :bind (:map company-active-map
         ;;             ("M-j" . company-select-next)
@@ -225,7 +258,7 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
         :config
         ;; no delay no autocomplete
         (validate-setq
-         company-idle-delay 0
+         company-idle-delay 0.1
          company-minimum-prefix-length 2
          company-tooltip-limit 20)
 
@@ -262,6 +295,7 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
     ;; On-the-fly syntax checking
     (use-package flycheck
       :ensure t
+      :defer t
       :diminish flycheck-mode
       :init (global-flycheck-mode t))
 
@@ -315,6 +349,7 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 #+BEGIN_SRC emacs-lisp
 (use-package ace-window
 :ensure t
+:defer t
 :init
 (progn
 (global-set-key (kbd "C-x O") 'other-frame)
@@ -336,16 +371,14 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 (setq aw-keys '(?3 ?4 ?1 ?2 ?5 ?6 ?7 ?8 ?9))
 #+END_SRC
 ** elfeed
-Some good functions [[http://pragmaticemacs.com/emacs/read-your-rss-feeds-in-emacs-with-elfeed/][here]] for working with elfeed across multiple computers
+Some good functions [[http://pragmaticemacs.com/emacs/read-your-rss-feeds-in-emacs-with-elfeed/][here]] for working with elfeed across multiple computers and a post [[http://nullprogram.com/blog/2013/11/26/][here]] for customizations.
 #+BEGIN_SRC emacs-lisp
   (setq elfeed-db-directory "~/Dropbox/Personal/elfeed_database")
-
 
   (defun elfeed-mark-all-as-read ()
         (interactive)
         (mark-whole-buffer)
         (elfeed-search-untag-all-unread))
-
 
   ;;functions to support syncing .elfeed between machines
   ;;makes sure elfeed reads index from disk before launching
@@ -368,13 +401,17 @@ Some good functions [[http://pragmaticemacs.com/emacs/read-your-rss-feeds-in-ema
 
   (use-package elfeed
     :ensure t
-    :bind (:map elfeed-search-mode-map
-            ("q" . bjm/elfeed-save-db-and-bury)
-            ("Q" . bjm/elfeed-save-db-and-bury)
-            ("m" . elfeed-toggle-star)
-            ("M" . elfeed-toggle-star)
-            )
+    :defer t
+    ;; :bind (:map elfeed-search-mode-map
+    ;;         ;; ("q" . bjm/elfeed-save-db-and-bury)
+    ;;         ;; ("Q" . bjm/elfeed-save-db-and-bury)
+    ;;         ("m" . elfeed-toggle-star)
+    ;;         ("M" . elfeed-toggle-star)
+    ;;         )
     :config
+    (setq elfeed-search-title-max-width 120)
+    (setq elfeed-search-title-min-width 60)
+    ;; (setq elfeed-search-title-min-width 60)
     (setq elfeed-feeds
         '(("http://nullprogram.com/feed/" emacs)
           ("http://planet.emacsen.org/atom.xml" emacs)
@@ -410,7 +447,9 @@ Some good functions [[http://pragmaticemacs.com/emacs/read-your-rss-feeds-in-ema
 ** magit and magithub
 [[https://github.com/vermiculus/magithub][link to magithub]]
 #+BEGIN_SRC emacs-lisp
-(use-package magit)
+(use-package magit
+    :defer t
+)
 ;;(use-package magithub
 ;;  :after magit
 ;;  :config (magithub-feature-autoinject t))
@@ -426,6 +465,7 @@ Some good functions [[http://pragmaticemacs.com/emacs/read-your-rss-feeds-in-ema
 (use-package bm
          :ensure t
          :demand t
+         :defer t
 
          :init
          ;; restore on load (even before you require bm)
@@ -484,29 +524,29 @@ Some good functions [[http://pragmaticemacs.com/emacs/read-your-rss-feeds-in-ema
                 ("C-<f2>" . bm-toggle))
          )
 #+END_SRC
-** xterm-color
+** xterm-color - disabled
 #+BEGIN_SRC emacs-lisp
-(require 'xterm-color)
-;; comint install
-(progn (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
-       (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions)))
+  ;; (require 'xterm-color)
+  ;; ;; comint install
+  ;; (progn (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
+  ;;        (setq comint-output-filter-functions (remove 'ansi-color-process-output comint-output-filter-functions)))
 
-;; comint uninstall
-(progn (remove-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
-       (add-to-list 'comint-output-filter-functions 'ansi-color-process-output))
+  ;; ;; comint uninstall
+  ;; (progn (remove-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
+  ;;        (add-to-list 'comint-output-filter-functions 'ansi-color-process-output))
 
-;; For M-x shell, also set TERM accordingly (xterm-256color)
+  ;; ;; For M-x shell, also set TERM accordingly (xterm-256color)
 
-;; You can also use it with eshell (and thus get color output from system ls):
+  ;; ;; You can also use it with eshell (and thus get color output from system ls):
 
-(require 'eshell)
+  ;; (require 'eshell)
 
-(add-hook 'eshell-mode-hook
-          (lambda ()
-            (setq xterm-color-preserve-properties t)))
+  ;; (add-hook 'eshell-mode-hook
+  ;;           (lambda ()
+  ;;             (setq xterm-color-preserve-properties t)))
 
-(add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
-(setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+  ;; (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
+  ;; (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
 #+END_SRC
 ** Autocomplete
 Deprecated in favor of company-mode
@@ -526,10 +566,10 @@ Deprecated in favor of company-mode
   ;; (org-ac/config-default)
   ;; ;;(ac-set-trigger-key "TAB")
 #+END_SRC
-** Sunshine
+** Sunshine - disabled
 #+BEGIN_SRC emacs-lisp
-(require 'sunshine)
-(setq sunshine-location "15228,USA")
+  ;; (require 'sunshine)
+  ;; (setq sunshine-location "15228,USA")
 #+END_SRC
 ** Folding
 Origami doesn't currently work the way I want it to. Try hideshow instead.
@@ -586,73 +626,73 @@ Too laggy ATM
   ;;   :config
   ;;   (smooth-scrolling-mode 1))
 #+END_SRC
-** org trello
+** org trello - disabled
 #+BEGIN_SRC emacs-lisp
-(require 'org-trello)
-(custom-set-variables
-   ;; '(org-trello-current-prefix-keybinding "C-c x") ;; C-c x as the default prefix
-   '(org-trello-files '("~/Dropbox/org/trello/mesh.trello"))) ;; automatic org-trello on files
+  ;; (require 'org-trello)
+  ;; (custom-set-variables
+  ;;    ;; '(org-trello-current-prefix-keybinding "C-c x") ;; C-c x as the default prefix
+  ;;    '(org-trello-files '("~/Dropbox/org/trello/mesh.trello"))) ;; automatic org-trello on files
 
-;; [[https://org-trello.github.io/bindings.html]]
-(add-hook 'org-trello-mode-hook
-  (lambda ()
-    (define-key org-trello-mode-map (kbd "C-c o c") 'org-trello-sync-card)
-    (define-key org-trello-mode-map (kbd "C-c o s") 'org-trello-sync-buffer)
-    (define-key org-trello-mode-map (kbd "C-c o a") 'org-trello-assign-me)
-    (define-key org-trello-mode-map (kbd "C-c o d") 'org-trello-check-setup)
-    (define-key org-trello-mode-map (kbd "C-c o D") 'org-trello-delete-setup)
-    (define-key org-trello-mode-map (kbd "C-c o b") 'org-trello-create-board-and-install-metadata)
-    (define-key org-trello-mode-map (kbd "C-c o k") 'org-trello-kill-entity)
-    (define-key org-trello-mode-map (kbd "C-c o K") 'org-trello-kill-cards)
-    (define-key org-trello-mode-map (kbd "C-c o a") 'org-trello-archive-card)
-    (define-key org-trello-mode-map (kbd "C-c o A") 'org-trello-archive-cards)
-    (define-key org-trello-mode-map (kbd "C-c o j") 'org-trello-jump-to-trello-card)
-    (define-key org-trello-mode-map (kbd "C-c o J") 'org-trello-jump-to-trello-board)
-    (define-key org-trello-mode-map (kbd "C-c o C") 'org-trello-add-card-comments)
-    (define-key org-trello-mode-map (kbd "C-c o o") 'org-trello-show-card-comments)
-    (define-key org-trello-mode-map (kbd "C-c o l") 'org-trello-show-card-labels)
-    (define-key org-trello-mode-map (kbd "C-c o u") 'org-trello-update-board-metadata)
-    (define-key org-trello-mode-map (kbd "C-c o h") 'org-trello-help-describing-bindings)))
+  ;; ;; [[https://org-trello.github.io/bindings.html]]
+  ;; (add-hook 'org-trello-mode-hook
+  ;;   (lambda ()
+  ;;     (define-key org-trello-mode-map (kbd "C-c o c") 'org-trello-sync-card)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o s") 'org-trello-sync-buffer)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o a") 'org-trello-assign-me)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o d") 'org-trello-check-setup)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o D") 'org-trello-delete-setup)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o b") 'org-trello-create-board-and-install-metadata)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o k") 'org-trello-kill-entity)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o K") 'org-trello-kill-cards)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o a") 'org-trello-archive-card)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o A") 'org-trello-archive-cards)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o j") 'org-trello-jump-to-trello-card)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o J") 'org-trello-jump-to-trello-board)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o C") 'org-trello-add-card-comments)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o o") 'org-trello-show-card-comments)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o l") 'org-trello-show-card-labels)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o u") 'org-trello-update-board-metadata)
+  ;;     (define-key org-trello-mode-map (kbd "C-c o h") 'org-trello-help-describing-bindings)))
 
-;; org-trello major mode for all .trello files
-(add-to-list 'auto-mode-alist '("\\.trello$" . org-mode))
+  ;; ;; org-trello major mode for all .trello files
+  ;; (add-to-list 'auto-mode-alist '("\\.trello$" . org-mode))
 
-;; add a hook function to check if this is trello file, then activate the org-trello minor mode.
-(add-hook 'org-mode-hook
-          (lambda ()
-            (let ((filename (buffer-file-name (current-buffer))))
-              (when (and filename (string= "trello" (file-name-extension filename)))
-              (org-trello-mode)))))
+  ;; ;; add a hook function to check if this is trello file, then activate the org-trello minor mode.
+  ;; (add-hook 'org-mode-hook
+  ;;           (lambda ()
+  ;;             (let ((filename (buffer-file-name (current-buffer))))
+  ;;               (when (and filename (string= "trello" (file-name-extension filename)))
+  ;;               (org-trello-mode)))))
 #+END_SRC
 ** Ivy
 
 #+BEGIN_SRC emacs-lisp
-;; Config options for ivy
-(ivy-mode 1)
-(setq ivy-use-virtual-buffers t)
-(setq enable-recursive-minibuffers t)
-(global-set-key "\C-s" 'swiper)
-;;(global-set-key "\C-r" 'swiper)
-(global-set-key (kbd "C-c C-r") 'ivy-resume)
-(global-set-key (kbd "<f6>") 'ivy-resume)
-(global-set-key (kbd "M-x") 'counsel-M-x)
-(global-set-key (kbd "C-x C-f") 'counsel-find-file)
-(global-set-key (kbd "<f1> f") 'counsel-describe-function)
-(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-(global-set-key (kbd "<f1> l") 'counsel-find-library)
-;;(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-;;(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-(global-set-key (kbd "C-c g") 'counsel-git)
-(global-set-key (kbd "C-c j") 'counsel-git-grep)
-(global-set-key (kbd "C-c k") 'counsel-ag)
-(global-set-key (kbd "C-x l") 'counsel-locate)
-(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
-(define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
+  ;; Config options for ivy
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+  (global-set-key "\C-s" 'swiper)
+  ;;(global-set-key "\C-r" 'swiper)
+  (global-set-key (kbd "C-c C-r") 'ivy-resume)
+  (global-set-key (kbd "<f6>") 'ivy-resume)
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+  (global-set-key (kbd "<f1> l") 'counsel-find-library)
+  ;;(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+  ;;(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+  (global-set-key (kbd "C-c g") 'counsel-git)
+  (global-set-key (kbd "C-c j") 'counsel-git-grep)
+  (global-set-key (kbd "C-c k") 'counsel-ag)
+  (global-set-key (kbd "C-x l") 'counsel-locate)
+  ;; (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+  (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
 
-;; Extra ivy stuff:
-(require 'all-the-icons)
-(all-the-icons-ivy-setup)
-;; end config options for ivy
+  ;; Extra ivy stuff:
+  (require 'all-the-icons)
+  (all-the-icons-ivy-setup)
+  ;; end config options for ivy
 #+END_SRC
 
 ** Hydra
@@ -661,11 +701,14 @@ Too laggy ATM
 #+END_SRC
 ** Octave mode
 #+BEGIN_SRC emacs-lisp
-(autoload 'octave-mode "octave-mod" nil t)
+(use-package octave-mode
+    :defer t
+    :config
 	(setq auto-mode-alist
 	(cons '("\\.m$" . octave-mode) auto-mode-alist))
+)
 #+END_SRC
-** Undo tree
+** Undo tree - disabled
 #+BEGIN_SRC emacs-lisp
 ;;(use-package undo-tree
 ;;			 :diminish undo-tree-mode
@@ -681,18 +724,21 @@ Too laggy ATM
 (use-package which-key :ensure t
   :config (which-key-mode)
   :diminish ""
+  :defer t
   )
 #+END_SRC
 ** PHP Mode
 #+BEGIN_SRC emacs-lisp
-(require 'php-mode)
+  (use-package php-mode
+      :defer t
+      :config
+      (add-hook 'php-mode-hook
+      '(lambda () (define-abbrev php-mode-abbrev-table "ex" "extends")))
 
-(add-hook 'php-mode-hook
-  '(lambda () (define-abbrev php-mode-abbrev-table "ex" "extends")))
-
-(autoload 'php-mode "php-mode" "Major mode for editing php code." t)
-(add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
-(add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))
+      ;; (autoload 'php-mode "php-mode" "Major mode for editing php code." t)
+      (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
+      (add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))
+  )
 #+END_SRC
 
 ** Org mode
@@ -786,138 +832,183 @@ Too laggy ATM
 Some good org stuff taken from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][here.]]
 #+BEGIN_SRC emacs-lisp
 
-  (setq org-agenda-skip-scheduled-if-done t)
-  (setq org-agenda-custom-commands
-        '(("d" "Daily agenda and all TODOs"
-           (;; Not-yet-done priority "A" entries (will also display
-            ;; non-todo entries).
-            (tags "PRIORITY=\"A\""
-                  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                   (org-agenda-overriding-header "High-priority unfinished tasks:")))
-            ;; Only todo entries (must be dated to appear in agenda)
-            ;; These are usually habits; entries that are marked todo,
-            ;; have a date in scope, and do not have a priority of "A".
-            (agenda ""
-                    ((org-agenda-span 1)
-                     (org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo 'any))))
-            ;; Only non-todo entries (still must be dated to appear in
-            ;; here). These are things I just want to be aware of,
-            ;; like anniversaries, vacations, or other peripheral
-            ;; events.
-            (agenda ""
-                    ((org-agenda-span 1)
-                     (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'any))))
-            ;; Items completed during this work week. My skip function
-            ;; here goes through some contortions that may not be
-            ;; necessary; it would be faster to simply show "closed in
-            ;; the last 7 days". Maybe some other time.
-            (todo "DONE"
-                  ((org-agenda-skip-function 'air-org-skip-if-not-closed-this-week)
-                   (org-agenda-overriding-header "Closed this week:"))))
-           ((org-agenda-compact-blocks t)))
+    (setq org-agenda-skip-scheduled-if-done t)
+    (setq org-agenda-custom-commands
+          '(("d" "Daily agenda and all TODOs"
+             (;; Not-yet-done priority "A" entries (will also display
+              ;; non-todo entries).
+              (tags "PRIORITY=\"A\""
+                    ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                     (org-agenda-overriding-header "High-priority tasks:")))
+              ;; Only todo entries (must be dated to appear in agenda)
+              ;; These are usually habits; entries that are marked todo,
+              ;; have a date in scope, and do not have a priority of "A".
+              (tags "+SCHEDULED={.+}/!+TODO"
+                      ;; ((org-agenda-span 1)
+                      ;;  (org-agenda-skip-function '(org-agenda-skip-entry-if 'nottodo 'any))
+                       ((org-agenda-overriding-header "TODO items")))
+              ;; Only non-todo entries (still must be dated to appear in
+              ;; here). These are things I just want to be aware of,
+              ;; like anniversaries, vacations, or other peripheral
+              ;; events.
+              (tags "+SCHEDULED={.+}"
+                      ;; ((org-agenda-span 1)
+                       ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'any))
+                        (org-agenda-overriding-header "Sheduled events")))
+              ;; Items that have TODO but don't have a date
+              (tags "-SCHEDULED={.+}/!+TODO"
+                    ;; ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                     ((org-agenda-overriding-header "Unscheduled tasks:")))
+              ;; Items completed during this work week. My skip function
+              ;; here goes through some contortions that may not be
+              ;; necessary; it would be faster to simply show "closed in
+              ;; the last 7 days". Maybe some other time.
+              (todo "DONE"
+                    ((org-agenda-skip-function 'air-org-skip-if-not-closed-this-week)
+                     (org-agenda-overriding-header "Closed this week:"))))
+             ((org-agenda-compact-blocks t)))
 
-          ("b" "Backlog items"
-           ((alltodo ""
-                     ((org-agenda-skip-function '(or (air-org-skip-if-habit)
-                                                     (air-org-skip-if-priority ?A)
-                                                     (org-agenda-skip-if nil '(scheduled deadline))))
-                      (org-agenda-overriding-header "ALL normal priority tasks:"))))
-           ((org-agenda-compact-blocks t)))
-          ("c" "Simple agenda view"
-           ((agenda "")
-           (alltodo "")))
-          ("g" "Individuals' current goals"
-           ((tags "perfgoal+TODO=\"TODO\"|perfgoal+TODO=\"IN-PROGRESS\""
-                  ((org-agenda-overriding-header "Individuals' current goals:")))))
-          ))
-(set-face-attribute 'org-upcoming-deadline nil :foreground "gold1")
+            ("b" "Backlog items"
+             ((alltodo ""
+                       ((org-agenda-skip-function '(or (air-org-skip-if-habit)
+                                                       (air-org-skip-if-priority ?A)
+                                                       (org-agenda-skip-if nil '(scheduled deadline))))
+                        (org-agenda-overriding-header "ALL normal priority tasks:"))))
+             ((org-agenda-compact-blocks t)))
+            ("c" "Simple agenda view"
+             ((agenda "")
+             (alltodo "")))
+            ("g" "Individuals' current goals"
+             ((tags "perfgoal+TODO=\"TODO\"|perfgoal+TODO=\"IN-PROGRESS\""
+                    ((org-agenda-overriding-header "Individuals' current goals:")))))
+            ))
+  (set-face-attribute 'org-upcoming-deadline nil :foreground "gold1")
 
-(defun air-org-skip-subtree-if-habit ()
-  "Skip an agenda entry if it has a STYLE property equal to \"habit\"."
-  (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-    (if (string= (org-entry-get nil "STYLE") "habit")
-        subtree-end
-      nil)))
 
-(defun air-org-skip-subtree-if-priority (priority)
-  "Skip an agenda subtree if it has a priority of PRIORITY.
+  (defun air-org-skip-if-not-closed-today (&optional subtree)
+    "Skip entries that were not closed today.
+  Skip the current entry unless SUBTREE is not nil, in which case skip
+  the entire subtree."
+    (let ((end (if subtree (save-excursion (org-end-of-subtree t))
+                 (save-excursion (progn (outline-next-heading) (1- (point))))))
+          (today-prefix (format-time-string "%Y-%m-%d")))
+      (if (save-excursion
+            (and (re-search-forward org-closed-time-regexp end t)
+                 (string= (substring (match-string-no-properties 1) 0 10) today-prefix)))
+          nil
+        end)))
 
-PRIORITY may be one of the characters ?A, ?B, or ?C."
-  (let ((subtree-end (save-excursion (org-end-of-subtree t)))
-        (pri-value (* 1000 (- org-lowest-priority priority)))
-        (pri-current (org-get-priority (thing-at-point 'line t))))
-    (if (= pri-value pri-current)
-        subtree-end
-      nil)))
+  (defun air-org-skip-if-not-closed-this-week (&optional subtree)
+    "Skip entries that were not closed this week.
+  Skip the current entry unless SUBTREE is not nil, in which case skip
+  the entire subtree."
+    (let ((end (if subtree (save-excursion (org-end-of-subtree t))
+                 (save-excursion (progn (outline-next-heading) (1- (point)))))))
+      (if (not (save-excursion (re-search-forward org-closed-time-regexp end t)))
+          end
+        (let* ((now (current-time))
+               (closed-time (date-to-time (match-string-no-properties 1)))
+               (closed-day (time-to-day-in-year closed-time))
+               (closed-year (format-time-string "%Y" closed-time))
+               (today-day (time-to-day-in-year now))
+               (today-year (format-time-string "%Y" now))
+               (today-dow (format-time-string "%w" now))
+               (start-day (- today-day
+                             (string-to-number today-dow)))
+               (end-day (+ today-day
+                           (- 6 (string-to-number today-dow)))))
+          (if (and (string= closed-year today-year)
+                   (>= closed-day start-day)
+                   (<= closed-day end-day))
+              nil
+            end)))))
+
+  (defun air-org-skip-subtree-if-habit ()
+    "Skip an agenda entry if it has a STYLE property equal to \"habit\"."
+    (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+      (if (string= (org-entry-get nil "STYLE") "habit")
+          subtree-end
+        nil)))
+
+  (defun air-org-skip-subtree-if-priority (priority)
+    "Skip an agenda subtree if it has a priority of PRIORITY.
+
+  PRIORITY may be one of the characters ?A, ?B, or ?C."
+    (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+          (pri-value (* 1000 (- org-lowest-priority priority)))
+          (pri-current (org-get-priority (thing-at-point 'line t))))
+      (if (= pri-value pri-current)
+          subtree-end
+        nil)))
 
 #+END_SRC
 
 A good agenda hydra:
 #+BEGIN_SRC emacs-lisp
-;;** org-agenda-view
-(defun org-agenda-cts ()
-  (and (eq major-mode 'org-agenda-mode)
-	   (let ((args (get-text-property
-					(min (1- (point-max)) (point))
-					'org-last-args)))
-		 (nth 2 args))))
+  ;;** org-agenda-view
+  (defun org-agenda-cts ()
+    (and (eq major-mode 'org-agenda-mode)
+         (let ((args (get-text-property
+                      (min (1- (point-max)) (point))
+                      'org-last-args)))
+           (nth 2 args))))
 
-(defhydra hydra-org-agenda-view (:hint none)
-    "
-_d_: ?d? day        _g_: time grid=?g?  _a_: arch-trees
-_w_: ?w? week       _[_: inactive       _A_: arch-files
-_t_: ?t? fortnight  _f_: follow=?f?     _r_: clock report=?r?
-_m_: ?m? month      _e_: entry text=?e? _D_: include diary=?D?
-_y_: ?y? year       _q_: quit           _L__l__c_: log = ?l?"
-	("SPC" org-agenda-reset-view)
-	("d" org-agenda-day-view (if (eq 'day (org-agenda-cts)) "[x]" "[ ]"))
-	("w" org-agenda-week-view (if (eq 'week (org-agenda-cts)) "[x]" "[ ]"))
-	("t" org-agenda-fortnight-view (if (eq 'fortnight (org-agenda-cts)) "[x]" "[ ]"))
-	("m" org-agenda-month-view (if (eq 'month (org-agenda-cts)) "[x]" "[ ]"))
-	("y" org-agenda-year-view (if (eq 'year (org-agenda-cts)) "[x]" "[ ]"))
-	("l" org-agenda-log-mode (format "% -3S" org-agenda-show-log))
-	("L" (org-agenda-log-mode '(4)))
-	("c" (org-agenda-log-mode 'clockcheck))
-	("f" org-agenda-follow-mode (format "% -3S" org-agenda-follow-mode))
-	("a" org-agenda-archives-mode)
-	("A" (org-agenda-archives-mode 'files))
-	("r" org-agenda-clockreport-mode (format "% -3S" org-agenda-clockreport-mode))
-	("e" org-agenda-entry-text-mode (format "% -3S" org-agenda-entry-text-mode))
-	("g" org-agenda-toggle-time-grid (format "% -3S" org-agenda-use-time-grid))
-	("D" org-agenda-toggle-diary (format "% -3S" org-agenda-include-diary))
-	("!" org-agenda-toggle-deadlines)
-	("[" (let ((org-agenda-include-inactive-timestamps t))
-		   (org-agenda-check-type t 'timeline 'agenda)
-		   (org-agenda-redo)
-		   (message "Display now includes inactive timestamps as well")))
-	("q" (message "Abort") :exit t)
-	("v" nil))
-;;(define-key org-agenda-mode-map "v" 'hydra-org-agenda-view/body)
+  (defhydra hydra-org-agenda-view (:hint none)
+      "
+  _d_: ?d? day        _g_: time grid=?g?  _a_: arch-trees
+  _w_: ?w? week       _[_: inactive       _A_: arch-files
+  _t_: ?t? fortnight  _f_: follow=?f?     _r_: clock report=?r?
+  _m_: ?m? month      _e_: entry text=?e? _D_: include diary=?D?
+  _y_: ?y? year       _q_: quit           _L__l__c_: log = ?l?"
+      ("SPC" org-agenda-reset-view)
+      ("d" org-agenda-day-view (if (eq 'day (org-agenda-cts)) "[x]" "[ ]"))
+      ("w" org-agenda-week-view (if (eq 'week (org-agenda-cts)) "[x]" "[ ]"))
+      ("t" org-agenda-fortnight-view (if (eq 'fortnight (org-agenda-cts)) "[x]" "[ ]"))
+      ("m" org-agenda-month-view (if (eq 'month (org-agenda-cts)) "[x]" "[ ]"))
+      ("y" org-agenda-year-view (if (eq 'year (org-agenda-cts)) "[x]" "[ ]"))
+      ("l" org-agenda-log-mode (format "% -3S" org-agenda-show-log))
+      ("L" (org-agenda-log-mode '(4)))
+      ("c" (org-agenda-log-mode 'clockcheck))
+      ("f" org-agenda-follow-mode (format "% -3S" org-agenda-follow-mode))
+      ("a" org-agenda-archives-mode)
+      ("A" (org-agenda-archives-mode 'files))
+      ("r" org-agenda-clockreport-mode (format "% -3S" org-agenda-clockreport-mode))
+      ("e" org-agenda-entry-text-mode (format "% -3S" org-agenda-entry-text-mode))
+      ("g" org-agenda-toggle-time-grid (format "% -3S" org-agenda-use-time-grid))
+      ("D" org-agenda-toggle-diary (format "% -3S" org-agenda-include-diary))
+      ("!" org-agenda-toggle-deadlines)
+      ("[" (let ((org-agenda-include-inactive-timestamps t))
+             (org-agenda-check-type t 'timeline 'agenda)
+             (org-agenda-redo)
+             (message "Display now includes inactive timestamps as well")))
+      ("q" (message "Abort") :exit t)
+      ("v" nil))
+  ;; (define-key org-agenda-mode-map "v" 'hydra-org-agenda-view/body)
 #+END_SRC
 
 *** Capture
 Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2/#.WTtEbXWw5pg][this link]] for info on how to bind a key to bring this up even if emacs isn't in focus. See [[http://orgmode.org/manual/Template-expansion.html#Template-expansion][this link]] for template shortcuts (the % commands below).
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-c c")
-       'org-capture)
+  (global-set-key (kbd "C-c c")
+         'org-capture)
 
-(setq org-capture-templates
-      '(("a" "Appointment" entry (file  "~/Dropbox/org/gcal.org" )
-         "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
-        ("n" "Note" entry (file+headline "~/Dropbox/org/notes.org" "Notes")
-         "* %?\n%T")
-        ("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
-         "* %? %^L %^g \n%T" :prepend t)
-        ("t" "To Do Today" checkitem (file+headline "~/Dropbox/org/today.org" "To do today")
-         " [ ] %?" :prepend t)
-        ("p" "Personal To Do Item" entry (file+headline "~/Dropbox/org/todo.org" "To Do Items")
-         "* %?\n%T" :prepend t)
-        ("m" "Mesh To Do Item" entry (file+headline "~/Dropbox/org/mesh.org" "Mesh To Do Items")
-         "* %?\n%T" :prepend t)
-        ("i" "Ideas" entry (file+headline "~/Dropbox/org/ideas.org" "Ideas")
-         "* %?\n%T" :prepend t)
-        ("j" "Journal" entry (file+datetree "~/Dropbox/org/journal.org")
-         "* %?\nEntered on %U\n")))
+  (setq org-capture-templates
+        '(("a" "Appointment" entry (file  "~/Dropbox/org/gcal.org" )
+           "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
+          ("n" "Note" entry (file+headline "~/Dropbox/org/notes.org" "Notes")
+           "* %?\n%T")
+          ;; ("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
+          ;;  "* %? %^L %^g \n%T" :prepend t)
+          ("t" "Task" checkitem (file+headline "~/Dropbox/org/today.org" "High Priority")
+           "** %?" :prepend t)
+          ("p" "Personal To Do Item" entry (file+headline "~/Dropbox/org/todo.org" "To Do Items")
+           "* %?\n%T" :prepend t)
+          ("m" "Mesh To Do Item" entry (file+headline "~/Dropbox/org/mesh.org" "Mesh To Do Items")
+           "* %?\n%T" :prepend t)
+          ("i" "Ideas" entry (file+headline "~/Dropbox/org/ideas.org" "Ideas")
+           "* %?\n%T" :prepend t)
+          ("j" "Journal" entry (file+datetree "~/Dropbox/org/journal.org")
+           "* %?\nEntered on %U\n")))
 #+END_SRC
 *** Refile
 #+BEGIN_SRC emacs-lisp
@@ -937,8 +1028,10 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
 #+END_SRC
 ** Rainbow Delimeters
 #+BEGIN_SRC emacs-lisp
-(use-package rainbow-delimiters :ensure t
-  :config (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  (use-package rainbow-delimiters
+  :ensure t
+  :defer t
+    :config (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 #+END_SRC
 ** Org Bullets
 #+BEGIN_SRC emacs-lisp
@@ -963,16 +1056,17 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
 #+BEGIN_SRC emacs-lisp
 (use-package markdown-mode
   :ensure t
+  :defer t
   :commands (markdown-mode gfm-mode)
   :mode (("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "multimarkdown"))
 #+END_SRC
-** appt
+** appt - disabled
 #+BEGIN_SRC emacs-lisp
-(require 'appt)
-(setq appt-message-warning-time 0)      ; 0 minute time before warning
-(setq diary-file "~/Dropbox/Personal/emacs_appt_warnings.txt")
+  ;; (require 'appt)
+  ;; (setq appt-message-warning-time 0)      ; 0 minute time before warning
+  ;; (setq diary-file "~/Dropbox/Personal/emacs_appt_warnings.txt")
 #+END_SRC
 ** Elpy
 #+BEGIN_SRC emacs-lisp
@@ -985,46 +1079,46 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
 * Keybinds
 There are also a few of these sprinkled in above sections that are specific to certain modules.
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-x g") 'magit-status)
+  (global-set-key (kbd "C-x g") 'magit-status)
 
-;; Set up the keyboard so the delete key on both the regular keyboard
-;; and the keypad delete the character under the cursor and to the right
-;; under X, instead of the default, backspace behavior.
-(global-set-key [delete] 'delete-char)
-(global-set-key [kp-delete] 'delete-char)
+  ;; Set up the keyboard so the delete key on both the regular keyboard
+  ;; and the keypad delete the character under the cursor and to the right
+  ;; under X, instead of the default, backspace behavior.
+  (global-set-key [delete] 'delete-char)
+  (global-set-key [kp-delete] 'delete-char)
 
-(define-key esc-map "g" 'goto-line)
-(define-key esc-map "G" 'what-line)
-(define-key esc-map "r" 'replace-string)
-(define-key esc-map "o" 'other-window)
+  (define-key esc-map "g" 'goto-line)
+  ;; (define-key esc-map "G" 'what-line)
+  (define-key esc-map "r" 'replace-string)
+  (define-key esc-map "o" 'other-window)
 
-(global-set-key "\C-x\C-c" 'my-delete-frame)
-(global-set-key "\C-x\C-m" 'execute-extended-command) ;; execute M-x w/o alt
+  (global-set-key "\C-x\C-c" 'my-delete-frame)
+  ;; (global-set-key "\C-x\C-m" 'execute-extended-command) ;; execute M-x w/o alt
 
-;; kill a word. changes the Cut function as well. 
-(global-set-key "\C-w"     'backward-kill-word)
-(global-set-key "\C-x\C-k" 'kill-region)
+  ;; kill a word. changes the Cut function as well. 
+  (global-set-key "\C-w"     'backward-kill-word)
+  (global-set-key "\C-x\C-k" 'kill-region)
 
-;; (global-set-key [f1] 'goto-line) 
-;; (global-set-key [f2] 'undo) 
-;; (global-set-key [f1] '(lambda () (interactive) (jjj-insert-comment "//"))) 
-;; (global-set-key [f2] '(lambda () (interactive) (jjj-delete-comment "//"))) 
-;; (global-set-key [f3] '(lambda () (interactive) (jjj-insert-comment "%"))) 
-;; (global-set-key [(shift f3)] 'comment-region) 
-;; (global-set-key [f4] '(lambda () (interactive) (jjj-delete-comment "%")))
-(global-set-key [(shift f4)] 'universal-argument)
-(global-set-key [f5] 'shell)
-;; (global-set-key [f6] 'remove-dos-eol) 
+  ;; (global-set-key [f1] 'goto-line) 
+  ;; (global-set-key [f2] 'undo) 
+  ;; (global-set-key [f1] '(lambda () (interactive) (jjj-insert-comment "//"))) 
+  ;; (global-set-key [f2] '(lambda () (interactive) (jjj-delete-comment "//"))) 
+  (global-set-key [f3] 'elfeed) 
+  ;; (global-set-key [(shift f3)] 'comment-region) 
+  ;; (global-set-key [f4] '(lambda () (interactive) (jjj-delete-comment "%")))
+  ;; (global-set-key [(shift f4)] 'universal-argument)
+  (global-set-key [f5] 'shell)
+  ;; (global-set-key [f6] 'remove-dos-eol) 
 
-;;(global-set-key [f6] 'find-wiki-node)
+  ;;(global-set-key [f6] 'find-wiki-node)
 
-(global-set-key [f7] 'sunshine-quick-forecast)
-;; (global-set-key [f8] 'delete-other-windows) ; unsplit window
-(global-set-key [f9] 'font-lock-mode)
+  ;; (global-set-key [f7] 'sunshine-quick-forecast)
+  ;; (global-set-key [f8] 'delete-other-windows) ; unsplit window
+  (global-set-key [f9] 'font-lock-mode)
 
-;; Make control+pageup/down scroll the other buffer
-(global-set-key [C-next] 'scroll-other-window)
-(global-set-key [C-prior] 'scroll-other-window-down)
+  ;; Make control+pageup/down scroll the other buffer
+  (global-set-key [C-next] 'scroll-other-window)
+  (global-set-key [C-prior] 'scroll-other-window-down)
 #+END_SRC
 * Custom functions
 ** Preserve window size

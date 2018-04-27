@@ -1,3 +1,7 @@
+;; Make startup faster by reducing the frequency of garbage
+;; collection.  The default is 800 kilobytes.  Measured in bytes.
+(setq gc-cons-threshold (* 50 1000 1000))
+
 (require 'cl)
 (require 'package)
 (package-initialize)
@@ -45,11 +49,9 @@
    (quote
 	("/home/gfoil/Dropbox/org/commands.org" "/home/gfoil/Dropbox/org/cpp.org" "/home/gfoil/Dropbox/org/gcal.org" "/home/gfoil/Dropbox/org/home.org" "/home/gfoil/Dropbox/org/journal.org" "/home/gfoil/Dropbox/org/mesh.org" "/home/gfoil/Dropbox/org/notes.org" "/home/gfoil/Dropbox/org/python.org" "/home/gfoil/Dropbox/org/today.org")))
  '(org-tags-column 0)
- '(org-trello-current-prefix-keybinding "C-c o" nil (org-trello))
- '(org-trello-files (quote ("~/Dropbox/org/trello/mesh.trello")) nil (org-trello))
  '(package-selected-packages
    (quote
-	(company-box yasnippet-snippets spacemacs-theme eyebrowse spaceline-all-the-icons spaceline yasnippet xterm-color pyvenv find-file-in-project epl company elfeed-goodies validate flycheck-ycmd flycheck company-ycmd ycmd elpy with-editor which-key swiper s rainbow-delimiters projectile php-mode origami org-bullets org magithub ivy gruvbox-theme git-commit ghub ghub+ f dash-functional dash ctable clojure-mode bind-key avy async apiwrap all-the-icons alert web-mode treemacs-projectile treemacs nyan-mode cmake-mode yaml-mode visual-regexp-steroids elfeed org-gcal ace-window doom-themes sunshine ivy-hydra hydra use-package undo-tree all-the-icons-ivy magit markdown-mode counsel)))
+	(elfeed-org yasnippet-snippets yaml-mode xterm-color which-key web-mode visual-regexp-steroids validate use-package undo-tree treemacs-projectile symon spinner spacemacs-theme spaceline-all-the-icons smooth-scrolling rainbow-delimiters queue php-mode origami org-trello org-gcal org-bullets org-ac nyan-mode magithub jedi gruvbox-theme font-lock+ flycheck-ycmd eyebrowse esup elpy elfeed-goodies doom-themes diminish counsel company-ycmd cmake-mode clojure-mode bm badwolf-theme all-the-icons-ivy)))
  '(paren-mode (quote paren) nil (paren))
  '(tab-stop-list
    (quote
@@ -63,3 +65,6 @@
  '(aw-leading-char-face ((t (:inherit ace-jump-face-foreground :height 3.0))))
  '(bm-fringe-persistent-face ((t (:background "dark orange" :foreground "White"))))
  '(bm-persistent-face ((t (:background "dark orange" :foreground "White")))))
+
+;; Make gc pauses faster by decreasing the threshold.
+(setq gc-cons-threshold (* 2 1000 1000))
