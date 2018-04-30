@@ -851,12 +851,15 @@ Some good org stuff taken from [[https://blog.aaronbieber.com/2016/09/24/an-agen
               ;; here). These are things I just want to be aware of,
               ;; like anniversaries, vacations, or other peripheral
               ;; events.
+              (tags-todo "+scrum"
+                      ;; ((org-agenda-span 1)
+                        ((org-agenda-overriding-header "Tasks in the current scrum")))
               (tags "+SCHEDULED={.+}"
                       ;; ((org-agenda-span 1)
                        ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'any))
                         (org-agenda-overriding-header "Sheduled events")))
               ;; Items that have TODO but don't have a date
-              (tags "-SCHEDULED={.+}/!+TODO"
+              (tags "-scrum-SCHEDULED={.+}/!+TODO"
                     ;; ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
                      ((org-agenda-overriding-header "Unscheduled tasks:")))
               ;; Items completed during this work week. My skip function
@@ -942,6 +945,9 @@ Some good org stuff taken from [[https://blog.aaronbieber.com/2016/09/24/an-agen
         nil)))
 
 #+END_SRC
+
+#+RESULTS:
+: air-org-skip-subtree-if-priority
 
 A good agenda hydra:
 #+BEGIN_SRC emacs-lisp
@@ -1107,7 +1113,16 @@ There are also a few of these sprinkled in above sections that are specific to c
   ;; (global-set-key [(shift f3)] 'comment-region) 
   ;; (global-set-key [f4] '(lambda () (interactive) (jjj-delete-comment "%")))
   ;; (global-set-key [(shift f4)] 'universal-argument)
-  (global-set-key [f5] 'shell)
+
+  ;;keybinding for favorite agenda view
+  ;; http://emacs.stackexchange.com/questions/864/how-to-bind-a-key-to-a-specific-agenda-command-list-in-org-mode
+  (defun org-agenda-show-specific-agenda (view &optional arg)
+    (interactive "P")
+    (org-agenda arg view))
+
+  (global-set-key [f5] (lambda () (interactive) (org-agenda-show-specific-agenda "a")))
+  (global-set-key [f6] (lambda () (interactive) (org-agenda-show-specific-agenda "d")))
+  ;; (global-set-key [f5] 'shell)
   ;; (global-set-key [f6] 'remove-dos-eol) 
 
   ;;(global-set-key [f6] 'find-wiki-node)
@@ -1120,6 +1135,10 @@ There are also a few of these sprinkled in above sections that are specific to c
   (global-set-key [C-next] 'scroll-other-window)
   (global-set-key [C-prior] 'scroll-other-window-down)
 #+END_SRC
+
+#+RESULTS:
+: scroll-other-window-down
+
 * Custom functions
 ** Preserve window size
 #+BEGIN_SRC emacs-lisp
