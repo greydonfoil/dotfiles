@@ -21,9 +21,9 @@ use-package loads the package if it's available. If not it logs to *Messages*. [
   ;; to get melpa to work on windows: https://gnutls.org/download.html
   (require 'package)
   (setq package-archives
-        '(("gnu" . "http://elpa.gnu.org/packages/")
+        '(("gnu" . "https://orgmode.org/elpa/")
           ("org" . "http://orgmode.org/elpa/")
-         ("melpa" . "https://melpa.org/packages/")
+          ("melpa" . "https://melpa.org/packages/")
           ("melpa-stable" . "https://stable.melpa.org/packages/")))
   ;;(add-to-list 'package-archives
   ;;             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
@@ -48,6 +48,7 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
             ;; badwolf-theme        ; Emacs color theme
             ;; gruvbox-theme        ; Emacs color theme
             doom-themes          ; Color theme
+            spaceline            ; powerline/modeline theme
             jedi                 ; Python auto-completion for Emacs
             magit                ; control Git from Emacs
             magithub             ; Github integration for Magit
@@ -343,7 +344,7 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 	   '(("\\.cmake\\'" . cmake-mode))
 	   auto-mode-alist))
 
-(require 'cmake-mode)
+;;(require 'cmake-mode)
 #+END_SRC
 ** ace window
 #+BEGIN_SRC emacs-lisp
