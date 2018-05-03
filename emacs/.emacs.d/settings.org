@@ -861,8 +861,9 @@ Some good org stuff taken from [[https://blog.aaronbieber.com/2016/09/24/an-agen
                         (org-agenda-overriding-header "Sheduled events")))
               ;; Items that have TODO but don't have a date
               (tags "-scrum-SCHEDULED={.+}/!+TODO"
-                    ;; ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
                      ((org-agenda-overriding-header "Unscheduled tasks:")))
+              (tags "+short-SCHEDULED={.+}"
+                     ((org-agenda-overriding-header "Quick tasks:")))
               ;; Items completed during this work week. My skip function
               ;; here goes through some contortions that may not be
               ;; necessary; it would be faster to simply show "closed in
@@ -1004,6 +1005,8 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
            "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
           ("n" "Note" entry (file+headline "~/Dropbox/org/notes.org" "Notes")
            "* %?\n%T")
+          ("c" "Timecard" entry (file+datetree "~/Dropbox/org/timecard.org")
+           "* %?" :tree-type "week")
           ;; ("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
           ;;  "* %? %^L %^g \n%T" :prepend t)
           ("t" "Task" checkitem (file+headline "~/Dropbox/org/today.org" "High Priority")
@@ -1017,6 +1020,11 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
           ("j" "Journal" entry (file+datetree "~/Dropbox/org/journal.org")
            "* %?\nEntered on %U\n")))
 #+END_SRC
+
+#+RESULTS:
+| a | Appointment | entry | (file ~/Dropbox/org/gcal.org) | * %? |
+
+
 *** Refile
 #+BEGIN_SRC emacs-lisp
 (setq gf-refile-targets
