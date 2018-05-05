@@ -154,7 +154,10 @@ export CUDA_HOME=/usr/local/cuda-8.0
 
 # For Amazon AWS:
 export PATH=~/.local/bin:$PATH
-source ~/.local/bin/aws_zsh_completer.sh
+if [ -f "~/.local/bin/aws_zsh_completer.sh" ]; then
+    source ~/.local/bin/aws_zsh_completer.sh
+fi
 
-
-. /home/gfoil/projects/torch/install/bin/torch-activate
+if [ -f "~/projects/torch/install/bin/torch-activate" ]; then
+    . ~/projects/torch/install/bin/torch-activate
+fi
