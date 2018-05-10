@@ -24,6 +24,11 @@ Install powerline fonts using the instructions [here.](https://powerline.readthe
 
 `chsh -s /bin/zsh` then log out and back in to have ZSH as your default shell. 
 
+## Other things to or update:
+
+* `elpy`: [here](https://github.com/jorgenschaefer/elpy)
+* Ctrl->Caps can be changed through `gnome-tweak-tool`
+
 ## Common Ubuntu Issues
 
 * `gdebi` is a good package manager if you can't install .deb files through the package manager.
