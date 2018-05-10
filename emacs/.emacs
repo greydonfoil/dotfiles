@@ -47,11 +47,11 @@
 	 ("deleted" :foreground "#ff2c4b" :bold t))))
  '(org-agenda-files
    (quote
-	("/home/gfoil/Dropbox/org/commands.org" "/home/gfoil/Dropbox/org/cpp.org" "/home/gfoil/Dropbox/org/gcal.org" "/home/gfoil/Dropbox/org/home.org" "/home/gfoil/Dropbox/org/journal.org" "/home/gfoil/Dropbox/org/mesh.org" "/home/gfoil/Dropbox/org/notes.org" "/home/gfoil/Dropbox/org/python.org" "/home/gfoil/Dropbox/org/today.org")))
+	("/home/gfoil/Dropbox/org/commands.org" "/home/gfoil/Dropbox/org/cpp.org" "/home/gfoil/Dropbox/org/gcal.org" "/home/gfoil/Dropbox/org/home.org" "/home/gfoil/Dropbox/org/journal.org" "/home/gfoil/Dropbox/org/mesh.org" "/home/gfoil/Dropbox/org/notes.org" "/home/gfoil/Dropbox/org/python.org" "/home/gfoil/Dropbox/org/timecard.org" "/home/gfoil/Dropbox/org/today.org")))
  '(org-tags-column 0)
  '(package-selected-packages
    (quote
-	(elfeed-org yasnippet-snippets yaml-mode xterm-color which-key web-mode visual-regexp-steroids validate use-package undo-tree treemacs-projectile symon spinner spacemacs-theme spaceline-all-the-icons smooth-scrolling rainbow-delimiters queue php-mode origami org-trello org-gcal org-bullets org-ac nyan-mode magithub jedi gruvbox-theme font-lock+ flycheck-ycmd eyebrowse esup elpy elfeed-goodies doom-themes diminish counsel company-ycmd cmake-mode clojure-mode bm badwolf-theme all-the-icons-ivy)))
+	(org-projectile nxml-mode elfeed-org yasnippet-snippets yaml-mode xterm-color which-key web-mode visual-regexp-steroids validate use-package undo-tree treemacs-projectile symon spinner spacemacs-theme spaceline-all-the-icons smooth-scrolling rainbow-delimiters queue php-mode origami org-trello org-gcal org-bullets org-ac nyan-mode magithub jedi gruvbox-theme font-lock+ flycheck-ycmd eyebrowse esup elpy elfeed-goodies doom-themes diminish counsel company-ycmd cmake-mode clojure-mode bm badwolf-theme all-the-icons-ivy)))
  '(paren-mode (quote paren) nil (paren))
  '(tab-stop-list
    (quote
