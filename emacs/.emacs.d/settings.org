@@ -60,6 +60,7 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
             ;; org-trello           ; integration between org and trello
             ;; org-ac               ; Auto-complete for org
             org-bullets          ; Improved bullet rendering
+            org-projectile       ; project-level support for org
             xterm-color          ; color support for the terminal
             smooth-scrolling     ; smooth mouse scrolling
             which-key            ; Shows a popup with possible commands and their shortcuts
@@ -266,7 +267,7 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
         (validate-setq company-backends 
                        (mapcar #'company-mode/backend-with-yas company-backends)))
 
-  (setq company-global-modes '(not org-mode))
+  (setq company-global-modes '(not org-mode, not markdown-mode))
 
   ;; better selection box for company - requires 26.1
   ;; (use-package company-box
@@ -316,6 +317,19 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
     ;; (use-package eldoc
     ;;   :diminish eldoc-mode
     ;;   :init (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup))
+#+END_SRC
+** org projectile
+#+BEGIN_SRC emacs-lisp
+(use-package org-projectile
+  :bind (("C-c n p" . org-projectile-project-todo-completing-read)
+         ("C-c c" . org-capture))
+  :config
+  (progn
+    (setq org-projectile-projects-file
+          "/your/path/to/an/org/file/for/storing/projects.org")
+    (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
+    (push (org-projectile-project-todo-entry) org-capture-templates))
+  :ensure t)
 #+END_SRC
 ** org mode latex
 #+BEGIN_SRC emacs-lisp

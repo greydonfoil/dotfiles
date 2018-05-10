@@ -108,6 +108,7 @@ alias fixtty="sudo kbd_mode -s"
 alias gputop="watch -n 0.1 nvidia-smi"
 alias sshmesh="ssh demo@edgecase.zapto.org -i ~/.ssh/id_rsa"
 alias kinetic="source /opt/ros/kinetic/setup.zsh"
+alias emacs="~/bin/emacs-26.1/src/emacs"
 
 export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LIBRARY_PATH
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig
@@ -116,6 +117,10 @@ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig
 if [ -f /usr/local/bin/virtualenvwrapper.sh ]; then
 	source /usr/local/bin/virtualenvwrapper.sh
 fi
+
+# Set the keyboard delay and refresh rate. Has to be reset on login and supposedly
+#  will periodically reset
+xset r rate 250 35
 
 # export PYTHONPATH=/usr/local/lib/python3.5/dist-packages:$PYTHONPATH
 #export GREP_COLOR='1;32'
