@@ -21,15 +21,38 @@
 # bindsym XF86AudioRaiseVolume exec amixer -q set Master 2dB+ unmute
 # bindsym XF86AudioLowerVolume exec amixer -q set Master 2dB- unmute
 # bindsym XF86AudioMute exec amixer -q set Master toggle
+
+bindsym XF86AudioMicMute exec "pactl set-sink-mute 0 -- toggle; notify-send 'Volume' `~/.i3/volume-info.sh`"
+# For pulse audio:
+# bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 -- +10% && killall -SIGUSR1 i3status
+# bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -- -10% && killall -SIGUSR1 i3status
+
+exec --no-startup-id pa-applet
+exec_always --no-startup-id /usr/lib/x86_64-linux-gnu/notify-osd
+
+exec_always setxkbmap -layout us -option ctrl:swapcaps
+
 exec_always /usr/bin/gnome-settings-daemon &
 exec_always /usr/bin/dropbox start &
-exec --no-startup-id nitrogen --restore
-exec --no-startup-id i3-msg 'workspace number 3; exec firefox'
-exec --no-startup-id i3-msg 'workspace number 2; exec google-chrome'
+
+# Name the workspaces
+set $tag1 "1"
+set $tag2 "2: net"
+set $tag3 "3: emacs"
+set $tag4 "4: ♫♫"
+
+
+# exec --no-startup-id nitrogen --restore # nitrogen lets you set the desktop background
+exec --no-startup-id i3-msg 'workspace $tag1; exec i3-sensible-terminal'
+exec --no-startup-id i3-msg 'workspace $tag3; exec /home/gfoil/bin/emacs-26.1/src/emacs'
+exec --no-startup-id i3-msg 'workspace number 5; exec /home/gfoil/bin/emacs-26.1/src/emacs ~/Dropbox/org/today.org'
+exec --no-startup-id i3-msg 'workspace $tag2; exec vivaldi-snapshot'
+# exec --no-startup-id i3-msg 'workspace $tag4; exec spotify-wrapper.sh'
 # exec --no-startup-id nm-applet
 
 # from https://github.com/justbuchanan/dotfiles.git
 # bindsym F4 exec i3-sensible-terminal -e htop
+
 
 
 # For use with i3-gaps
@@ -39,7 +62,7 @@ exec --no-startup-id i3-msg 'workspace number 2; exec google-chrome'
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
 # font pango:Consolas 8
-font pango:DejaVu Sans Mono 10
+font pango:DejaVu Sans Mono 8
 
 # Before i3 v4.8, we used to recommend this one as the default:
 # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
@@ -64,6 +87,9 @@ bindsym $mod+Shift+Q kill
 
 # start dmenu (a program launcher)
 bindsym $mod+d exec dmenu_run
+
+# move workspace
+bindsym $mod+m move workspace to output left
 
 # change focus
 bindsym $mod+j focus left
@@ -116,18 +142,12 @@ bindsym $mod+a focus parent
 #bindcode $mod+d focus child
 
 # MORE GF EDITS --------------------------------------------
-# Name the workspaces
-set $tag1 "code"
-set $tag2 "net"
-set $tag3 "code2"
-set $tag4 "misc"
-
 
 # switch to workspace
-bindsym $mod+1 workspace number 1
-bindsym $mod+2 workspace number 2
-bindsym $mod+3 workspace number 3
-bindsym $mod+4 workspace number 4
+bindsym $mod+1 workspace $tag1
+bindsym $mod+2 workspace $tag2
+bindsym $mod+3 workspace $tag3
+bindsym $mod+4 workspace $tag4
 bindsym $mod+5 workspace number 5
 bindsym $mod+6 workspace number 6
 bindsym $mod+7 workspace number 7
@@ -148,10 +168,10 @@ bindsym $mod+0 workspace number 10
 # bindsym $mod+0 workspace 10
 
 # move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace number 1
-bindsym $mod+Shift+2 move container to workspace number 2
-bindsym $mod+Shift+3 move container to workspace number 3
-bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+1 move container to workspace $tag1
+bindsym $mod+Shift+2 move container to workspace $tag2
+bindsym $mod+Shift+3 move container to workspace $tag3
+bindsym $mod+Shift+4 move container to workspace $tag4
 bindsym $mod+Shift+5 move container to workspace number 5
 bindsym $mod+Shift+6 move container to workspace number 6
 bindsym $mod+Shift+7 move container to workspace number 7
