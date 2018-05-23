@@ -23,6 +23,13 @@
 # bindsym XF86AudioMute exec amixer -q set Master toggle
 
 bindsym XF86AudioMicMute exec "pactl set-sink-mute 0 -- toggle; notify-send 'Volume' `~/.i3/volume-info.sh`"
+
+# https://faq.i3wm.org/question/3747/enabling-multimedia-keys.1.html
+# https://github.com/acrisci/playerctl
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioPause exec playerctl play-pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
 # For pulse audio:
 # bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 -- +10% && killall -SIGUSR1 i3status
 # bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -- -10% && killall -SIGUSR1 i3status
@@ -32,21 +39,22 @@ exec_always --no-startup-id /usr/lib/x86_64-linux-gnu/notify-osd
 
 exec_always setxkbmap -layout us -option ctrl:swapcaps
 
-exec_always /usr/bin/gnome-settings-daemon &
+# exec_always /usr/bin/gnome-settings-daemon &
+exec --no-startup-id /usr/lib/gnome-settings-daemon/gnome-settings-daemon
 exec_always /usr/bin/dropbox start &
 
 # Name the workspaces
 set $tag1 "1"
-set $tag2 "2: net"
-set $tag3 "3: emacs"
+set $tag2 "2: emacs"
+set $tag3 "3: net"
 set $tag4 "4: ♫♫"
 
 
 # exec --no-startup-id nitrogen --restore # nitrogen lets you set the desktop background
 exec --no-startup-id i3-msg 'workspace $tag1; exec i3-sensible-terminal'
-exec --no-startup-id i3-msg 'workspace $tag3; exec /home/gfoil/bin/emacs-26.1/src/emacs'
+exec --no-startup-id i3-msg 'workspace $tag2; exec /home/gfoil/bin/emacs-26.1/src/emacs'
 exec --no-startup-id i3-msg 'workspace number 5; exec /home/gfoil/bin/emacs-26.1/src/emacs ~/Dropbox/org/today.org'
-exec --no-startup-id i3-msg 'workspace $tag2; exec vivaldi-snapshot'
+exec --no-startup-id i3-msg 'workspace $tag3; exec vivaldi-snapshot'
 # exec --no-startup-id i3-msg 'workspace $tag4; exec spotify-wrapper.sh'
 # exec --no-startup-id nm-applet
 
@@ -76,6 +84,26 @@ font pango:DejaVu Sans Mono 8
 
 set $mod Mod4
 
+
+# resizing the window: https://christopherdecoster.com/posts/i3-wm/
+# Generate these sh files with the 'sudo apt install arandr' utility
+set $displayMode "Set display mode [u]ltrawide [l]aptop"
+bindsym $mod+x mode $displayMode
+mode $displayMode {
+	 bindsym u exec ~/.screenlayout/ultrawide.sh
+	 bindsym l exec ~/.screenlayout/laptop.sh
+    # bindsym u exec "\
+    #             ~/.screenlayout/ultrawide.sh && \
+    #             mode "default"
+    # bindsym l exec "\
+    #             ~/.screenlayout/laptop.sh && \
+    #             mode "default"
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
@@ -90,6 +118,16 @@ bindsym $mod+d exec dmenu_run
 
 # move workspace
 bindsym $mod+m move workspace to output left
+
+# bind alt-grave (prev) and alt-tab (overview?) to something?
+# https://wiki.archlinux.org/index.php/i3#Quickly_jumping_to_open_window
+# bindsym $alt+grave workspace prev
+# bindsym $mod+grave workspace prev
+# bindsym $alt+Tab workspace next
+# bindsym $mod+Tab workspace next
+
+bindsym Print exec gnome-screenshot
+
 
 # change focus
 bindsym $mod+j focus left

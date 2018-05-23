@@ -132,6 +132,8 @@ M-x all-the-icons
 ;; for some good daytime themes
 (require 'color-theme-tomorrow)
 
+;; more themes: http://peach-melpa.org
+
 (load-theme 'gf-doom-molokai t)
 
 ;; Enable flashing mode-line on errors
@@ -307,6 +309,8 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
       :defer t
       :diminish flycheck-mode
       :init (global-flycheck-mode t))
+
+  (setq flycheck-global-modes '(not python-mode, not markdown-mode, not org-mode))
 
   (eval-after-load "flymake"
     '(progn
@@ -1128,7 +1132,7 @@ There are also a few of these sprinkled in above sections that are specific to c
   (define-key esc-map "r" 'replace-string)
   (define-key esc-map "o" 'other-window)
 
-  (global-set-key "\C-x\C-c" 'my-delete-frame)
+  (global-set-key "\C-x\C-c" 'intelligent-close)
   ;; (global-set-key "\C-x\C-m" 'execute-extended-command) ;; execute M-x w/o alt
 
   ;; kill a word. changes the Cut function as well. 
