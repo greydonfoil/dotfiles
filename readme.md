@@ -33,10 +33,12 @@ Install powerline fonts using the instructions [here.](https://powerline.readthe
 
 Some of my favorites:
 
-* [Goot set of programming fonts](https://github.com/hbin/top-programming-fonts)
+* [Good set of programming fonts](https://github.com/hbin/top-programming-fonts)
 * [Input Mono](http://input.fontbureau.com/preview/?size=17&language=python&theme=base16-dark&family=InputMono&width=300&weight=400&line-height=1.1&a=0&g=ss&i=serif&l=serifs_round&zero=slash&asterisk=height&braces=straight&preset=default&customize=please)
 * [Iosevka](https://github.com/be5invis/iosevka)
   * [Some comments](https://news.ycombinator.com/item?id=14009963)
+  
+Place these in `~/.fonts` and run `sudo fc-cache -f -v`.
 
 ## Common Ubuntu Issues
 
