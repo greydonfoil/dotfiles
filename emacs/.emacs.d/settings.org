@@ -12,6 +12,13 @@ See [[http://orgmode.org/manual/In_002dbuffer-settings.html][here]] for more sta
 ** Org export examples:
 - https://www.reddit.com/r/emacs/comments/6r32q4/orgmode_whats_your_html_export_look_like/
 - http://ivanmalison.github.io/dotfiles/#setbackgroundcolorofsourceblocksforexport
+* EmacsClient
+** [[https://www.emacswiki.org/emacs/EmacsClient][wiki page]]
+** Basics:
+#+BEGIN_SRC sh
+emacs --daemon
+emacsclient -create-frame --alternate-editor=""
+#+END_SRC
 * Package installation
 use-package loads the package if it's available. If not it logs to *Messages*. [[https://github.com/jwiegley/use-package][Readme]]
 
@@ -63,6 +70,7 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
             markdown-mode        ; Emacs Major mode for Markdown-formatted files
             ;;auto-complete        ; auto-complete
             company              ; auto-complete
+            company-box          ; box pop-up for company. requires emacs 26+
             ace-window           ; better window swapping
             ;; org-trello           ; integration between org and trello
             ;; org-ac               ; Auto-complete for org
@@ -98,6 +106,8 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
                      (when (memq window-system '(mac ns))
                        (package-install 'exec-path-from-shell)))))
 #+END_SRC
+
+#+RESULTS:
 
 ** Manual package install
 M-x package-refresh-contents
@@ -154,6 +164,9 @@ M-x all-the-icons
 ;;    (load-theme 'gruvbox t))
 #+END_SRC
 
+#+RESULTS:
+: :config
+
 * Basic initialization
 ** Frame size
 #+BEGIN_SRC emacs-lisp
@@ -188,6 +201,104 @@ By default save all ~ files in this directory:
   :config ; Code to run after the package is loaded.
   (abn/define-leader-keys "k" evil-lisp-state-map))
 #+END_SRC
+** emacs daemon
+#+BEGIN_SRC emacs-lisp
+(defun client-save-kill-emacs(&optional display)
+  " This is a function that can bu used to shutdown save buffers and 
+shutdown the emacs daemon. It should be called using 
+emacsclient -e '(client-save-kill-emacs)'.  This function will
+check to see if there are any modified buffers or active clients
+or frame.  If so an x window will be opened and the user will
+be prompted."
+
+  (let (new-frame modified-buffers active-clients-or-frames)
+
+    ; Check if there are modified buffers or active clients or frames.
+    (setq modified-buffers (modified-buffers-exist))
+    (setq active-clients-or-frames ( or (> (length server-clients) 1)
+					(> (length (frame-list)) 1)
+				       ))  
+
+    ; Create a new frame if prompts are needed.
+    (when (or modified-buffers active-clients-or-frames)
+      (when (not (eq window-system 'x))
+	(message "Initializing x windows system.")
+	(x-initialize-window-system))
+      (when (not display) (setq display (getenv "DISPLAY")))
+      (message "Opening frame on display: %s" display)
+      (select-frame (make-frame-on-display display '((window-system . x)))))
+
+    ; Save the current frame.  
+    (setq new-frame (selected-frame))
+
+
+    ; When displaying the number of clients and frames: 
+    ; subtract 1 from the clients for this client.
+    ; subtract 2 from the frames this frame (that we just created) and the default frame.
+    (when ( or (not active-clients-or-frames)
+	       (yes-or-no-p (format "There are currently %d clients and %d frames. Exit anyway?" (- (length server-clients) 1) (- (length (frame-list)) 2)))) 
+      
+      ; If the user quits during the save dialog then don't exit emacs.
+      ; Still close the terminal though.
+      (let((inhibit-quit t))
+             ; Save buffers
+	(with-local-quit
+	  (save-some-buffers)) 
+	      
+	(if quit-flag
+	  (setq quit-flag nil)  
+          ; Kill all remaining clients
+	  (progn
+	    (dolist (client server-clients)
+	      (server-delete-client client))
+		 ; Exit emacs
+	    (kill-emacs))) 
+	))
+
+    ; If we made a frame then kill it.
+    (when (or modified-buffers active-clients-or-frames) (delete-frame new-frame))
+    )
+  )
+
+
+(defun modified-buffers-exist() 
+  "This function will check to see if there are any buffers
+that have been modified.  It will return true if there are
+and nil otherwise. Buffers that have buffer-offer-save set to
+nil are ignored."
+  (let (modified-found)
+    (dolist (buffer (buffer-list))
+      (when (and (buffer-live-p buffer)
+		 (buffer-modified-p buffer)
+		 (not (buffer-base-buffer buffer))
+		 (or
+		  (buffer-file-name buffer)
+		  (progn
+		    (set-buffer buffer)
+		    (and buffer-offer-save (> (buffer-size) 0))))
+		 )
+	(setq modified-found t)
+	)
+      )
+    modified-found
+    )
+  )
+#+END_SRC
+** Edit server - chromium extension
+Not currently working. Doesn't reliably work with gmail, which is 90% of the reason to have this. [[https://www.emacswiki.org/emacs/Edit_with_Emacs][Wiki page]], [[https://github.com/stsquad/emacs_chrome][github page]]
+#+BEGIN_SRC emacs-lisp
+  ;; (require 'edit-server)
+  ;; (require 'edit-server-htmlize)
+  ;; (edit-server-start)
+
+  ;; (autoload 'edit-server-maybe-dehtmlize-buffer "edit-server-htmlize" "edit-server-htmlize" t)
+  ;; (autoload 'edit-server-maybe-htmlize-buffer   "edit-server-htmlize" "edit-server-htmlize" t)
+  ;; (add-hook 'edit-server-start-hook 'edit-server-maybe-dehtmlize-buffer)
+  ;; (add-hook 'edit-server-done-hook  'edit-server-maybe-htmlize-buffer)
+#+END_SRC
+
+#+RESULTS:
+| edit-server-maybe-htmlize-buffer |
 ** Eyebrowse (window configuration/workspace switching)
 [[https://github.com/wasamasa/eyebrowse][github page]]
 #+BEGIN_SRC emacs-lisp
@@ -209,9 +320,14 @@ Use to hide minor modes in the spaceline/powerline display
   (diminish 'highlight-indentation-mode)
   (diminish 'elpy-mode)
   (diminish 'flycheck-mode "fly")
+  (diminish 'company-box-mode "cbox")
   (diminish 'ivy-mode))
 
 #+END_SRC
+
+#+RESULTS:
+: t
+
 ** Spaceline (modeline customization)
 Spaceline [[https://github.com/TheBB/spaceline][github page]]
 #+BEGIN_SRC emacs-lisp
@@ -229,6 +345,10 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
   (spaceline-toggle-major-mode-off)
   (spaceline-toggle-buffer-encoding-abbrev)
 #+END_SRC
+
+#+RESULTS:
+: t
+
 ** Code validation
 #+BEGIN_SRC emacs-lisp
 ;; Validation of setq and stuff
@@ -271,6 +391,7 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
         (validate-setq
          company-idle-delay 0.1
          company-minimum-prefix-length 2
+         company-tooltip-align-annotations 't
          company-tooltip-limit 20)
 
         (validate-setq company-backends 
@@ -329,6 +450,26 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
     ;;   :diminish eldoc-mode
     ;;   :init (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup))
 #+END_SRC
+
+#+RESULTS:
+: 5
+
+** Company-Box
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package company-box
+  ;;   :hook (company-mode . company-box-mode))
+(use-package company-box
+  :after company
+  :diminish
+  :hook (company-mode . company-box-mode))
+#+END_SRC
+
+#+RESULTS:
+| company-box-mode | company-mode-set-explicitly |
+
+To customize:
+M-x customize-group [RET] company-box [RET]
+
 ** org projectile
 #+BEGIN_SRC emacs-lisp
 (use-package org-projectile
@@ -395,7 +536,12 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 (global-set-key (kbd "M-p") 'z/swap-windows)
 
 (setq aw-keys '(?3 ?4 ?1 ?2 ?5 ?6 ?7 ?8 ?9))
+(setq aw-scope 'frame)
 #+END_SRC
+
+#+RESULTS:
+: frame
+
 ** elfeed
 Some good functions [[http://pragmaticemacs.com/emacs/read-your-rss-feeds-in-emacs-with-elfeed/][here]] for working with elfeed across multiple computers and a post [[http://nullprogram.com/blog/2013/11/26/][here]] for customizations.
 #+BEGIN_SRC emacs-lisp
@@ -1032,16 +1178,36 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
            "* %?\n%T")
           ("c" "Timecard" entry (file+datetree "~/Dropbox/org/timecard.org")
            "* %?" :tree-type "week")
-          ;; ("l" "Link" entry (file+headline "~/Dropbox/org/links.org" "Links")
-          ;;  "* %? %^L %^g \n%T" :prepend t)
-          ("t" "Task" checkitem (file+headline "~/Dropbox/org/today.org" "High Priority")
+          ("m" "Meeting Notes" entry (file "~/Dropbox/org/meetings.org")
+           "* %t %?\n" :prepend t)
+          ("k" "Investigate" entry (file+headline "~/Dropbox/org/learning.org" "To Learn")
+          "* %?\n%T" :prepend t)
+           ;; Links
+           ("l" "Links")
+          ("le" "Emacs Link" entry (file+headline "~/Dropbox/org/saved_links.org" "Emacs Links")
+           "* %^L %^g \n%?\n%T" :prepend t)
+          ("ld" "Deep Learning Link" entry (file+headline "~/Dropbox/org/saved_links.org" "Deep Learning Links")
+           "* %^L %^g \n%?\n%T" :prepend t)
+          ("lm" "Management Link" entry (file+headline "~/Dropbox/org/saved_links.org" "Management Links")
+           "* %^L %^g \n%?\n%T" :prepend t)
+          ("lp" "Programming Link" entry (file+headline "~/Dropbox/org/saved_links.org" "Programming Links")
+           "* %^L %^g \n%?\n%T" :prepend t)
+          ("lr" "Random Link" entry (file+headline "~/Dropbox/org/saved_links.org" "Random Links")
+           "* %^L %^g \n%?\n%T" :prepend t)
+           ;; Tasks
+           ("t" "Tasks")
+          ("th" "High Priority Task" checkitem (file+headline "~/Dropbox/org/today.org" "High Priority")
            "** %?" :prepend t)
-          ("p" "Personal To Do Item" entry (file+headline "~/Dropbox/org/todo.org" "To Do Items")
+          ("tp" "Personal Task" entry (file+headline "~/Dropbox/org/todo.org" "To Do Items")
            "* %?\n%T" :prepend t)
-          ("m" "Mesh To Do Item" entry (file+headline "~/Dropbox/org/mesh.org" "Mesh To Do Items")
+          ("tm" "Mesh Task" entry (file+headline "~/Dropbox/org/mesh.org" "Mesh To Do Items")
+           "* %?\n%T" :prepend t)
+          ("te" "ECR Task" entry (file+headline "~/Dropbox/org/ecr.org" "To Do Items")
            "* %?\n%T" :prepend t)
           ("i" "Ideas" entry (file+headline "~/Dropbox/org/ideas.org" "Ideas")
            "* %?\n%T" :prepend t)
+          ("e" "Emacs Notes" entry (file "~/Dropbox/org/emacs.org")
+           "* %?" :prepend t)
           ("j" "Journal" entry (file+datetree "~/Dropbox/org/journal.org")
            "* %?\nEntered on %U\n")))
 #+END_SRC
@@ -1052,20 +1218,26 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
 
 *** Refile
 #+BEGIN_SRC emacs-lisp
-(setq gf-refile-targets
-      '("~/Dropbox/org/notes.org"
-        "~/Dropbox/org/links.org"
-        "~/Dropbox/org/todo.org"
-        "~/Dropbox/org/gcal.org"
-        "~/Dropbox/org/journal.org"
-        "~/Dropbox/org/old/done.org"
-        "~/Dropbox/org/old/cancelled.org"
-        "~/Dropbox/org/mesh.org"))
+  (setq gf-refile-targets
+        '("~/Dropbox/org/notes.org"
+          "~/Dropbox/org/links.org"
+          "~/Dropbox/org/todo.org"
+          "~/Dropbox/org/gcal.org"
+          "~/Dropbox/org/journal.org"
+          "~/Dropbox/org/old/done.org"
+          "~/Dropbox/org/old/cancelled.org"
+          "~/Dropbox/org/mesh.org"))
 
-(setq org-refile-targets
-      '((nil :maxlevel . 1)
-        (gf-refile-targets :maxlevel . 1)))
+  (setq org-refile-targets
+        '((nil :maxlevel . 1)
+          (gf-refile-targets :maxlevel . 1)))
+
+  ;; (define-key org-mode-map (kbd "C-c C-w") 'org-refile)
 #+END_SRC
+
+#+RESULTS:
+: org-refile
+
 ** Rainbow Delimeters
 #+BEGIN_SRC emacs-lisp
   (use-package rainbow-delimiters
@@ -1094,14 +1266,45 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
 #+END_SRC
 ** Markdown mode
 #+BEGIN_SRC emacs-lisp
-(use-package markdown-mode
-  :ensure t
-  :defer t
-  :commands (markdown-mode gfm-mode)
-  :mode (("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+  (use-package markdown-mode
+    :ensure t
+    :defer t
+    :commands (markdown-mode gfm-mode)
+    :mode
+    ("INSTALL\\'"
+     "CONTRIBUTORS\\'"
+     "LICENSE\\'"
+     "README\\'"
+     "\\.markdown\\'"
+     "\\.md\\'")
+    ;; :mode (("\\.md\\'" . markdown-mode)
+    ;;        ("\\.markdown\\'" . markdown-mode))
+    :init (setq markdown-command "multimarkdown"))
 #+END_SRC
+
+#+RESULTS:
+: multimarkdown
+
+** Aggressive indent mode
+[[https://github.com/Malabarba/aggressive-indent-mode][Github link]]
+#+BEGIN_SRC emacs-lisp
+(global-aggressive-indent-mode 1)
+(add-to-list 'aggressive-indent-excluded-modes '(html-mode, org-mode, markdown-mode))
+#+END_SRC
+
+#+RESULTS:
+| (html-mode (, org-mode) (, markdown-mode)) | inf-ruby-mode | makefile-mode | makefile-gmake-mode | python-mode | text-mode | yaml-mode |
+
+** Nyan Cat mode
+#+BEGIN_SRC emacs-lisp
+  (use-package nyan-mode
+    :ensure t
+    :defer t
+    )
+#+END_SRC
+
+#+RESULTS:
+
 ** appt - disabled
 #+BEGIN_SRC emacs-lisp
   ;; (require 'appt)
@@ -1314,6 +1517,10 @@ There are also a few of these sprinkled in above sections that are specific to c
     ;;close a child frame
     (delete-frame (selected-frame))))
 #+END_SRC
+
+#+RESULTS:
+: intelligent-close
+
 ** capture screenshot and import it into org
 #+BEGIN_SRC emacs-lisp
 (defun my-org-screenshot ()
@@ -1368,6 +1575,20 @@ same directory as the org-buffer and insert a link to this file."
       (message "All packages are up to date"))))
 #+END_SRC
 * Tweaks
+** Switch to previous buffer
+#+BEGIN_SRC emacs-lisp
+(defun switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+
+(global-set-key (kbd "C-c b") 'switch-to-previous-buffer)
+#+END_SRC
+
+#+RESULTS:
+: switch-to-previous-buffer
+
 ** Font lock tweak
 #+BEGIN_SRC emacs-lisp
 ;;(require 'font-lock)

@@ -8,7 +8,8 @@
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 ZSH_THEME="agnoster"
-# 'dieter' is also good
+#ZSH_THEME="dieter" # ok but boring
+
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -63,13 +64,6 @@ source $ZSH/oh-my-zsh.sh
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
@@ -87,7 +81,6 @@ alias papernotes='emacs -nw ~/Dropbox/org/paper_readings.org'
 alias pythonnotes='emacs -nw ~/Dropbox/org/python.org'
 alias cppnotes='emacs -nw ~/Dropbox/org/cpp.org'
 alias org='emacs -nw ~/Dropbox/org/notes.org'
-alias xemacs='emacs'
 #alias emacs='emacs -nw'
 alias CD='cd'
 alias ccd='cd;cd'
@@ -102,13 +95,24 @@ alias tut="source ~/ECR/tut/install/setup.zsh"
 alias druid="source ~/ECR/druid/ces18_demo/catkin_ws/install/setup.zsh"
 alias ads="source ~/ECR/altering_driving_scenes/catkin_ws/devel/setup.zsh"
 alias em="source ~/projects/Evidence_Mesh/install/setup.zsh"
-alias grep="grep --color=auto"
+alias grep="grep --color=auto" 
+alias sc='setxkbmap -option ctrl:swapcaps'
+alias SC='setxkbmap -option ctrl:swapcaps'
 alias swapcaps='setxkbmap -option ctrl:swapcaps'
 alias fixtty="sudo kbd_mode -s"
 alias gputop="watch -n 0.1 nvidia-smi"
 alias sshmesh="ssh demo@edgecase.zapto.org -i ~/.ssh/id_rsa"
 alias kinetic="source /opt/ros/kinetic/setup.zsh"
-alias emacs="~/bin/emacs-26.1/src/emacs"
+# alias emacs="~/bin/emacs-26.1/src/emacs"
+
+# alias emacs='emacsclient -create-frame --alternate-editor=""'
+alias e='emacsclient -create-frame --alternate-editor=""'
+alias killemacs="emacsclient -e '(client-save-kill-emacs)'"
+
+# Emacs stuff
+export ALTERNATE_EDITOR=""
+export EDITOR="emacsclient -t"                  # $EDITOR should open in terminal
+export VISUAL="emacsclient -c -a emacs"         # $VISUAL opens in GUI with non-daemon as alternate
 
 export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LIBRARY_PATH
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig
@@ -166,3 +170,8 @@ fi
 if [ -f "~/projects/torch/install/bin/torch-activate" ]; then
     . ~/projects/torch/install/bin/torch-activate
 fi
+
+# To support unlocking ssh keys in i3
+# if [ "$0" = "/usr/sbin/lightdm-session" -a "$DESKTOP_SESSION" = "i3" ]; then
+#     export $(gnome-keyring-daemon -s)
+# fi

@@ -29,6 +29,15 @@ Install powerline fonts using the instructions [here.](https://powerline.readthe
 * `elpy`: [here](https://github.com/jorgenschaefer/elpy)
 * Ctrl->Caps can be changed through `gnome-tweak-tool`
 
+## Custom fonts
+
+Some of my favorites:
+
+* [Goot set of programming fonts](https://github.com/hbin/top-programming-fonts)
+* [Input Mono](http://input.fontbureau.com/preview/?size=17&language=python&theme=base16-dark&family=InputMono&width=300&weight=400&line-height=1.1&a=0&g=ss&i=serif&l=serifs_round&zero=slash&asterisk=height&braces=straight&preset=default&customize=please)
+* [Iosevka](https://github.com/be5invis/iosevka)
+  * [Some comments](https://news.ycombinator.com/item?id=14009963)
+
 ## Common Ubuntu Issues
 
 * `gdebi` is a good package manager if you can't install .deb files through the package manager.
