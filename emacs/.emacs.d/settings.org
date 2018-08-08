@@ -30,39 +30,59 @@ emacsclient -create-frame --alternate-editor=""
 
 ;; then run: M-x package-install RET badwolf-theme RET
 #+BEGIN_SRC emacs-lisp
-(require 'doom-themes)
+  (require 'doom-themes)
 
-(setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-      doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
 
-;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each
-;; theme may have their own settings.
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(add-to-list 'load-path "~/.emacs.d/themes/")
+  ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each
+  ;; theme may have their own settings.
+  (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+  (add-to-list 'load-path "~/.emacs.d/themes/")
 
-;; for some good daytime themes
-(require 'color-theme-tomorrow)
+  ;; for some good daytime themes
+  (require 'color-theme-tomorrow)
 
-;; more themes: http://peach-melpa.org
+  ;; more themes: http://peach-melpa.org
 
-(load-theme 'gf-doom-molokai t)
+  (load-theme 'gf-doom-molokai t)
 
-;; Enable flashing mode-line on errors
-(doom-themes-visual-bell-config)
+;; For the material dark theme. Good colors but not perfect:
+  ;; (use-package doom-themes
+  ;;   :ensure t
+  ;;   :config
+  ;;   (load-theme 'doom-one t))
+;; Then add this to .emacs:
+ ;; '(font-lock-builtin-face ((t (:foreground "#ffcb6b"))))
+ ;; '(font-lock-constant-face ((t (:foreground "#C792EA"))))
+ ;; '(font-lock-keyword-face ((t (:foreground "#2BA3FF" :slant italic))))
+ ;; '(font-lock-preprocessor-face ((t (:inherit bold :foreground "#2BA3FF" :slant italic :weight normal))))
+ ;; '(font-lock-string-face ((t (:foreground "#C3E88D"))))
+ ;; '(font-lock-type-face ((t (:foreground "#FFCB6B"))))
+ ;; '(font-lock-variable-name-face ((t (:foreground "#FF5370"))))
+ ;; '(mode-line ((t (:background "#191919" :box nil))))
+ ;; '(mode-line-inactive ((t (:background "#282828" :foreground "#5B6268" :box nil)))))
 
-;; Enable custom neotree theme
-(doom-themes-neotree-config)  ; all-the-icons fonts must be installed!
+;; Can also modify this to make the colors correct:
+  ;; (load-theme 'gf-material-dark t)
+;; end material-dark
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+
+  ;; Enable custom neotree theme
+  (doom-themes-neotree-config)  ; all-the-icons fonts must be installed!
 
 
 
-;;  (use-package gruvbox-theme
-;;    :init
-;;    (setq anzu-cons-mode-line-p t)
-;;    (setq gruvbox-contrast 'hard)
+  ;;  (use-package gruvbox-theme
+  ;;    :init
+  ;;    (setq anzu-cons-mode-line-p t)
+  ;;    (setq gruvbox-contrast 'hard)
 
-    :config
-    ;; (gruvbox-modeline-three)
-;;    (load-theme 'gruvbox t))
+      ;; :config
+      ;; (gruvbox-modeline-three)
+  ;;    (load-theme 'gruvbox t))
 #+END_SRC
 
 #+RESULTS:
@@ -135,6 +155,7 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
             visual-regexp        ; visual regexp
             magit                ; control Git from Emacs
             magithub             ; Github integration for Magit
+            magit-todos          ; shows todos on the magit page
             ;; symon                ; small system monitor
             markdown-mode        ; Emacs Major mode for Markdown-formatted files
             ;;auto-complete        ; auto-complete
@@ -154,12 +175,14 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
             elfeed               ; RSS/feed reader
             elfeed-org           ; org mode organization for elfeed
             elfeed-goodies       ; some elfeed extras
+            highlight-indent-guides ; better indent guides
             eyebrowse            ; window/workspace management
             spacemacs-theme      ; needed for spaceline
             spaceline            ; modeline tweaks
             hideshow             ; code folding
             sgml-mode            ; tools
             nxml-mode            ; XML tools
+            yaml-mode            ; YAML tools
             websocket            ; async websocket stuff
             s                    ; dependency
             dash                 ; dependency
@@ -167,7 +190,11 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
             origami              ; Code folding
             bm                   ; visible bookmarks
             php-mode             ; php mode
-            cmake-mode             ; cmake mode
+            lsp-mode             ; LSP mode to show language-specific stuff
+            lsp-ui               ; LSP ui stuff
+            company-lsp          ; LSP company completions
+            lsp-python           ; LSP for python. not sure if requiredb
+            cmake-mode           ; cmake mode
             org))                ; Outline-based notes management and organizer
          ;; Remove all packages already installed
          (packages (remove-if 'package-installed-p packages)))
@@ -203,6 +230,67 @@ M-x all-the-icons
 
   :config ; Code to run after the package is loaded.
   (abn/define-leader-keys "k" evil-lisp-state-map))
+#+END_SRC
+** highlight-indent-guides
+Better indentation guides. [[https://github.com/DarthFennec/highlight-indent-guides][github page]]
+#+BEGIN_SRC emacs-lisp
+;; Enable this one
+(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+(setq highlight-indent-guides-method 'character)
+#+END_SRC
+** Language server protocol (LSP)
+[[https://github.com/emacs-lsp/lsp-ui][LSP-UI]]. Might require [[https://github.com/palantir/python-language-server][this]] for python. [[https://www.reddit.com/r/emacs/comments/91vmkd/what_are_the_current_best_options_for_language/e323h10/][Another option]] for language-specific config files
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :ensure t
+    :config
+
+    ;; make sure we have lsp-imenu everywhere we have LSP
+    (require 'lsp-imenu)
+    (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)  
+    ;; get lsp-python-enable defined
+    ;; NB: use either projectile-project-root or ffip-get-project-root-directory
+    ;;     or any other function that can be used to find the root directory of a project
+    (lsp-define-stdio-client lsp-python "python"
+                             #'projectile-project-root
+                             '("pyls"))
+
+    ;; make sure this is activated when python-mode is activated
+    ;; lsp-python-enable is created by macro above 
+    (add-hook 'python-mode-hook
+              (lambda ()
+                (lsp-python-enable)))
+
+    ;; options to enable/disable different UI elementas if you love/hate any:
+    ;; (setq lsp-ui-doc-enable t
+    ;;   lsp-ui-peek-enable t
+    ;;   lsp-ui-sideline-enable nil
+    ;;   lsp-ui-imenu-enable t
+    ;;   lsp-ui-flycheck-enable t)
+
+    ;; lsp extras
+    (use-package lsp-ui
+      :ensure t
+      :config
+      (setq lsp-ui-sideline-ignore-duplicate t)
+      (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+
+    (use-package company-lsp
+      :config
+      (push 'company-lsp company-backends))
+
+    ;; NB: only required if you prefer flake8 instead of the default
+    ;; send pyls config via lsp-after-initialize-hook -- harmless for
+    ;; other servers due to pyls key, but would prefer only sending this
+    ;; when pyls gets initialised (:initialize function in
+    ;; lsp-define-stdio-client is invoked too early (before server
+    ;; start)) -- cpbotha
+    (defun lsp-set-cfg ()
+      (let ((lsp-cfg `(:pyls (:configurationSources ("flake8")))))
+        ;; TODO: check lsp--cur-workspace here to decide per server / project
+        (lsp--set-configuration lsp-cfg)))
+
+    (add-hook 'lsp-after-initialize-hook 'lsp-set-cfg))
 #+END_SRC
 ** emacs daemon
 #+BEGIN_SRC emacs-lisp
@@ -371,6 +459,7 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 
   (setq flycheck-global-modes '(not markdown-mode, not org-mode))
 
+  (setq flycheck-idle-change-delay 2)
   (eval-after-load "flymake"
     '(progn
       (defun flymake-after-change-function (start stop len)
@@ -378,26 +467,35 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
         ;; Do nothing, don't want to run checks until I save.
         )))
 
-      (setq flymake-no-changes-timeout 5)
+  (setq flymake-no-changes-timeout 5)
+
+  ;; python-mode likes to clobber flycheck-previous-error
+  ;; (define-key python-mode-map (kbd "C-c C-p") nil)
 #+END_SRC
+
+#+RESULTS:
+
 ** Elpy
-[[https://github.com/jorgenschaefer/elpy][github link]]
+[[https://github.com/jorgenschaefer/elpy][github link]] - currently disabled in favor of LSP mode
 #+BEGIN_SRC emacs-lisp
-      (elpy-enable)
+  ;;       (elpy-enable)
 
-      ;; (define-key elpy-mode-map "\C-c ! C-n" 'elpy-flymake-next-error)
-      ;; (define-key elpy-mode-map "\C-c ! C-p" 'elpy-flymake-previous-error)
+  ;;       ;; (define-key elpy-mode-map "\C-c ! C-n" 'elpy-flymake-next-error)
+  ;;       ;; (define-key elpy-mode-map "\C-c ! C-p" 'elpy-flymake-previous-error)
 
-    (when (require 'flycheck nil t)
-      (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-      (add-hook 'elpy-mode-hook 'flycheck-mode))
+  ;;     (when (require 'flycheck nil t)
+  ;;       (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  ;;       (add-hook 'elpy-mode-hook 'flycheck-mode))
 
-  (eval-after-load "elpy"
-    '(cl-dolist (key '("C-c C-n" "C-c C-p"))
-       (define-key elpy-mode-map (kbd key) nil)))
-      ;; For jupyter integration
-      ;; (setq python-shell-interpreter "jupyter"
-      ;;     python-shell-interpreter-args "console --simple-prompt")
+  ;;   (eval-after-load "elpy"
+  ;;     '(cl-dolist (key '("C-c C-n" "C-c C-p"))
+  ;;        (define-key elpy-mode-map (kbd key) nil)))
+  ;;       ;; For jupyter integration
+  ;;       ;; (setq python-shell-interpreter "jupyter"
+  ;;       ;;     python-shell-interpreter-args "console --simple-prompt")
+
+  ;; ;; disable elpy built-in indendation highlighting mode
+  ;; (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
 #+END_SRC
 
 #+RESULTS:
@@ -405,6 +503,7 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 - Most taken from [[https://onze.io/emacs/c++/2017/03/16/emacs-cpp.html][here]]
 - Some recommendations on using ycmd with ros [[https://www.reddit.com/r/vim/comments/4835a7/youcompleteme_c_out_of_the_box/d0hthzr/][here]]
 - More on ycmd setup [[https://www.reddit.com/r/emacs/comments/7wzstc/emacs_as_a_c_ide_martin_sosics_blog/][here]]
+- [[https://www.gnu.org/software/emacs/manual/html_node/efaq/Customizing-C-and-C_002b_002b-indentation.html][Good link]] on changing indendation styles for C/C++
 #+BEGIN_SRC emacs-lisp
       ;; Snippets
       (use-package yasnippet
@@ -485,16 +584,15 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 
 ** Company-Box
 #+BEGIN_SRC emacs-lisp
+    ;; (use-package company-box
+    ;;   :hook (company-mode . company-box-mode))
   ;; (use-package company-box
+  ;;   :after company
+  ;;   :diminish
   ;;   :hook (company-mode . company-box-mode))
-(use-package company-box
-  :after company
-  :diminish
-  :hook (company-mode . company-box-mode))
 #+END_SRC
 
 #+RESULTS:
-| company-box-mode | company-mode-set-explicitly |
 
 To customize:
 M-x customize-group [RET] company-box [RET]
@@ -654,7 +752,13 @@ Some good functions [[http://pragmaticemacs.com/emacs/read-your-rss-feeds-in-ema
 ;;(use-package magithub
 ;;  :after magit
 ;;  :config (magithub-feature-autoinject t))
+(require 'magit-todos)
+(magit-todos-mode 1)
 #+END_SRC
+
+#+RESULTS:
+: t
+
 ** symon system monitor -- deactivated
 #+BEGIN_SRC emacs-lisp
 ;;(use-package symon
@@ -1007,8 +1111,10 @@ Too laggy ATM
           '((sequence "TODO" "IN-PROGRESS" "WAITING" "|" "DONE" "CANCELED")))
 
   (setq org-todo-keyword-faces
-    '(("TODO" . (:foreground "#ff39a3" :weight bold))
+    '(("IMMEDIATE" . (:foreground "#ff0000" :weight bold))
+      ("TODO" . (:foreground "#ff39a3" :weight bold))
   	("INPROGRESS" . "#E35DBF")
+      ("OPTIONAL" . "#ffa7db")
   	("IN-PROGRESS" . "#00A8E9")
       ("CANCELED" . "#555555")
   	("WAITING" . "pink")
@@ -1029,6 +1135,10 @@ Too laggy ATM
 ;;(add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync) ))
 ;;(add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync) ))
 #+END_SRC
+
+#+RESULTS:
+| lambda | nil | (gcal-fetch-and-sync) |
+
 *** Agenda view
 Some good org stuff taken from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][here.]]
 #+BEGIN_SRC emacs-lisp
@@ -1267,7 +1377,7 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
         '((nil :maxlevel . 1)
           (gf-refile-targets :maxlevel . 1)))
 
-  ;; (define-key org-mode-map (kbd "C-c C-w") 'org-refile)
+  (define-key org-mode-map (kbd "C-c C-e") 'org-refile)
 #+END_SRC
 
 #+RESULTS:
@@ -1323,8 +1433,8 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
 ** Aggressive indent mode
 [[https://github.com/Malabarba/aggressive-indent-mode][Github link]]
 #+BEGIN_SRC emacs-lisp
-(global-aggressive-indent-mode 1)
-(add-to-list 'aggressive-indent-excluded-modes '(html-mode, org-mode, markdown-mode))
+  ;; (global-aggressive-indent-mode 1)
+  ;; (add-to-list 'aggressive-indent-excluded-modes '(html-mode, org-mode, markdown-mode))
 #+END_SRC
 
 #+RESULTS:
