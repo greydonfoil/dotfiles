@@ -197,7 +197,6 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
             company-lsp          ; LSP company completions
             lsp-python           ; LSP for python. not sure if requiredb
             cmake-mode           ; cmake mode
->>>>>>> eb3a8c52ade7ba9105104dd0883dd17758acfe3a
             org))                ; Outline-based notes management and organizer
          ;; Remove all packages already installed
          (packages (remove-if 'package-installed-p packages)))
