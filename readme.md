@@ -28,6 +28,9 @@ Install powerline fonts using the instructions [here.](https://powerline.readthe
 
 * `elpy`: [here](https://github.com/jorgenschaefer/elpy)
 * Ctrl->Caps can be changed through `gnome-tweak-tool`
+* [Gnome system monitor](https://github.com/paradoxxxzero/gnome-shell-system-monitor-applet) in top bar
+* Fix Dropbox dying once too many files have downloaded: `echo fs.inotify.max_user_watches=100000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p`
+* [AlternateTab](https://extensions.gnome.org/extension/15/alternatetab/) for Gnome Shell
 
 ## Custom fonts
 

@@ -120,7 +120,7 @@ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig
 # virtualenvwrapper
 if [ -f /usr/local/bin/virtualenvwrapper.sh ]; then
 	export WORKON_HOME=$HOME/.virtualenvs
-	export PROJECT_HOME=$HOME/Devel
+	export PROJECT_HOME=$HOME/projects
 	source /usr/local/bin/virtualenvwrapper.sh
 fi
 

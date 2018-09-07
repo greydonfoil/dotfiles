@@ -19,6 +19,95 @@ See [[http://orgmode.org/manual/In_002dbuffer-settings.html][here]] for more sta
 emacs --daemon
 emacsclient -create-frame --alternate-editor=""
 #+END_SRC
+
+* Themes
+;; (load-theme 'badwolf-theme-source-code)
+;; (load-theme 'molokai-theme)
+;; (load-theme 'mustard-theme)
+
+;; for themes:
+;; https://github.com/bkruczyk/badwolf-emacs
+
+;; then run: M-x package-install RET badwolf-theme RET
+#+BEGIN_SRC emacs-lisp
+  (require 'doom-themes)
+
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+
+  ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each
+  ;; theme may have their own settings.
+  (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+  (add-to-list 'load-path "~/.emacs.d/themes/")
+
+  ;; for some good daytime themes
+  (require 'color-theme-tomorrow)
+
+  ;; more themes: http://peach-melpa.org
+
+  (load-theme 'gf-doom-molokai t)
+
+;; For the material dark theme. Good colors but not perfect:
+  ;; (use-package doom-themes
+  ;;   :ensure t
+  ;;   :config
+  ;;   (load-theme 'doom-one t))
+;; Then add this to .emacs:
+ ;; '(font-lock-builtin-face ((t (:foreground "#ffcb6b"))))
+ ;; '(font-lock-constant-face ((t (:foreground "#C792EA"))))
+ ;; '(font-lock-keyword-face ((t (:foreground "#2BA3FF" :slant italic))))
+ ;; '(font-lock-preprocessor-face ((t (:inherit bold :foreground "#2BA3FF" :slant italic :weight normal))))
+ ;; '(font-lock-string-face ((t (:foreground "#C3E88D"))))
+ ;; '(font-lock-type-face ((t (:foreground "#FFCB6B"))))
+ ;; '(font-lock-variable-name-face ((t (:foreground "#FF5370"))))
+ ;; '(mode-line ((t (:background "#191919" :box nil))))
+ ;; '(mode-line-inactive ((t (:background "#282828" :foreground "#5B6268" :box nil)))))
+
+;; Can also modify this to make the colors correct:
+  ;; (load-theme 'gf-material-dark t)
+;; end material-dark
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+
+  ;; Enable custom neotree theme
+  (doom-themes-neotree-config)  ; all-the-icons fonts must be installed!
+
+
+
+  ;;  (use-package gruvbox-theme
+  ;;    :init
+  ;;    (setq anzu-cons-mode-line-p t)
+  ;;    (setq gruvbox-contrast 'hard)
+
+      ;; :config
+      ;; (gruvbox-modeline-three)
+  ;;    (load-theme 'gruvbox t))
+#+END_SRC
+
+#+RESULTS:
+: :config
+
+* Basic initialization
+** Frame size
+#+BEGIN_SRC emacs-lisp
+;;(when window-system (set-frame-size (selected-frame) 80 40))
+;;(if (window-system)
+;;  (set-frame-height (selected-frame) 60)
+;;  (set-frame-width (selected-frame) 90))
+#+END_SRC
+** Hide stuff
+#+BEGIN_SRC emacs-lisp
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(toggle-scroll-bar -1)
+(setq inhibit-startup-message t)
+#+END_SRC
+** Change location of ~ files
+By default save all ~ files in this directory:
+#+BEGIN_SRC emacs-lisp
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+#+END_SRC
 * Package installation
 use-package loads the package if it's available. If not it logs to *Messages*. [[https://github.com/jwiegley/use-package][Readme]]
 
@@ -59,17 +148,19 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
             ;; gruvbox-theme        ; Emacs color theme
             doom-themes          ; Color theme
             spaceline            ; powerline/modeline theme
-            jedi                 ; Python auto-completion for Emacs
+            ;; jedi                 ; Python auto-completion for Emacs
             elpy                 ; Python utilities for Emacs
             validate             ; some code validation tools
             visual-regexp        ; visual regexp
             magit                ; control Git from Emacs
             magithub             ; Github integration for Magit
+            magit-todos          ; shows todos on the magit page
             ;; symon                ; small system monitor
             markdown-mode        ; Emacs Major mode for Markdown-formatted files
             ;;auto-complete        ; auto-complete
             company              ; auto-complete
             ;; company-box          ; box pop-up for company. requires emacs 26+
+            company-jedi
             ace-window           ; better window swapping
             ;; org-trello           ; integration between org and trello
             ;; org-ac               ; Auto-complete for org
@@ -83,20 +174,30 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
             elfeed               ; RSS/feed reader
             elfeed-org           ; org mode organization for elfeed
             elfeed-goodies       ; some elfeed extras
+            highlight-indent-guides ; better indent guides
             eyebrowse            ; window/workspace management
             spacemacs-theme      ; needed for spaceline
             spaceline            ; modeline tweaks
             hideshow             ; code folding
             sgml-mode            ; tools
             nxml-mode            ; XML tools
+            yaml-mode            ; YAML tools
+            websocket            ; async websocket stuff
             s                    ; dependency
             dash                 ; dependency
+            ein                  ; emacs ipython notebook
             origami              ; Code folding
             bm                   ; visible bookmarks
             php-mode             ; php mode
             cmake-mode             ; cmake mode
             yasnippets           ; code snippets
             yasnippets-snippets  ; the actual snippet examples
+            lsp-mode             ; LSP mode to show language-specific stuff
+            lsp-ui               ; LSP ui stuff
+            company-lsp          ; LSP company completions
+            lsp-python           ; LSP for python. not sure if requiredb
+            cmake-mode           ; cmake mode
+>>>>>>> eb3a8c52ade7ba9105104dd0883dd17758acfe3a
             org))                ; Outline-based notes management and organizer
          ;; Remove all packages already installed
          (packages (remove-if 'package-installed-p packages)))
@@ -110,84 +211,15 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
 
 #+RESULTS:
 
-** Manual package install
-M-x package-refresh-contents
-M-x all-the-icons
--install-fonts  (install to ~/.fonts/ then run `fc-cache -f -v`
-
 ** Load Custom modules
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "~/.emacs.d/modules/")
 #+END_SRC
 
-* Themes
-;; (load-theme 'badwolf-theme-source-code)
-;; (load-theme 'molokai-theme)
-;; (load-theme 'mustard-theme)
-
-;; for themes:
-;; https://github.com/bkruczyk/badwolf-emacs
-
-;; then run: M-x package-install RET badwolf-theme RET
-#+BEGIN_SRC emacs-lisp
-(require 'doom-themes)
-
-(setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-      doom-themes-enable-italic t) ; if nil, italics is universally disabled
-
-;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each
-;; theme may have their own settings.
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(add-to-list 'load-path "~/.emacs.d/themes/")
-
-;; for some good daytime themes
-(require 'color-theme-tomorrow)
-
-;; more themes: http://peach-melpa.org
-
-(load-theme 'gf-doom-molokai t)
-
-;; Enable flashing mode-line on errors
-(doom-themes-visual-bell-config)
-
-;; Enable custom neotree theme
-(doom-themes-neotree-config)  ; all-the-icons fonts must be installed!
-
-
-
-;;  (use-package gruvbox-theme
-;;    :init
-;;    (setq anzu-cons-mode-line-p t)
-;;    (setq gruvbox-contrast 'hard)
-
-    :config
-    ;; (gruvbox-modeline-three)
-;;    (load-theme 'gruvbox t))
-#+END_SRC
-
-#+RESULTS:
-: :config
-
-* Basic initialization
-** Frame size
-#+BEGIN_SRC emacs-lisp
-;;(when window-system (set-frame-size (selected-frame) 80 40))
-;;(if (window-system)
-;;  (set-frame-height (selected-frame) 60)
-;;  (set-frame-width (selected-frame) 90))
-#+END_SRC
-** Hide stuff
-#+BEGIN_SRC emacs-lisp
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(toggle-scroll-bar -1)
-(setq inhibit-startup-message t)
-#+END_SRC
-** Change location of ~ files
-By default save all ~ files in this directory:
-#+BEGIN_SRC emacs-lisp
-(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-#+END_SRC
+** Manual package install
+M-x package-refresh-contents
+M-x all-the-icons
+-install-fonts  (install to ~/.fonts/ then run `fc-cache -f -v`
 
 * Package Initialization
 ** use-package usage:
@@ -201,6 +233,67 @@ By default save all ~ files in this directory:
 
   :config ; Code to run after the package is loaded.
   (abn/define-leader-keys "k" evil-lisp-state-map))
+#+END_SRC
+** highlight-indent-guides
+Better indentation guides. [[https://github.com/DarthFennec/highlight-indent-guides][github page]]
+#+BEGIN_SRC emacs-lisp
+;; Enable this one
+(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+(setq highlight-indent-guides-method 'character)
+#+END_SRC
+** Language server protocol (LSP)
+[[https://github.com/emacs-lsp/lsp-ui][LSP-UI]]. Might require [[https://github.com/palantir/python-language-server][this]] for python. [[https://www.reddit.com/r/emacs/comments/91vmkd/what_are_the_current_best_options_for_language/e323h10/][Another option]] for language-specific config files
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :ensure t
+    :config
+
+    ;; make sure we have lsp-imenu everywhere we have LSP
+    (require 'lsp-imenu)
+    (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)  
+    ;; get lsp-python-enable defined
+    ;; NB: use either projectile-project-root or ffip-get-project-root-directory
+    ;;     or any other function that can be used to find the root directory of a project
+    (lsp-define-stdio-client lsp-python "python"
+                             #'projectile-project-root
+                             '("pyls"))
+
+    ;; make sure this is activated when python-mode is activated
+    ;; lsp-python-enable is created by macro above 
+    (add-hook 'python-mode-hook
+              (lambda ()
+                (lsp-python-enable)))
+
+    ;; options to enable/disable different UI elementas if you love/hate any:
+    ;; (setq lsp-ui-doc-enable t
+    ;;   lsp-ui-peek-enable t
+    ;;   lsp-ui-sideline-enable nil
+    ;;   lsp-ui-imenu-enable t
+    ;;   lsp-ui-flycheck-enable t)
+
+    ;; lsp extras
+    (use-package lsp-ui
+      :ensure t
+      :config
+      (setq lsp-ui-sideline-ignore-duplicate t)
+      (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+
+    (use-package company-lsp
+      :config
+      (push 'company-lsp company-backends))
+
+    ;; NB: only required if you prefer flake8 instead of the default
+    ;; send pyls config via lsp-after-initialize-hook -- harmless for
+    ;; other servers due to pyls key, but would prefer only sending this
+    ;; when pyls gets initialised (:initialize function in
+    ;; lsp-define-stdio-client is invoked too early (before server
+    ;; start)) -- cpbotha
+    (defun lsp-set-cfg ()
+      (let ((lsp-cfg `(:pyls (:configurationSources ("flake8")))))
+        ;; TODO: check lsp--cur-workspace here to decide per server / project
+        (lsp--set-configuration lsp-cfg)))
+
+    (add-hook 'lsp-after-initialize-hook 'lsp-set-cfg))
 #+END_SRC
 ** emacs daemon
 #+BEGIN_SRC emacs-lisp
@@ -356,10 +449,64 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 (use-package validate
   :ensure t)
 #+END_SRC
+** Flycheck
+#+BEGIN_SRC emacs-lisp
+    ;; On-the-fly syntax checking
+    (use-package flycheck
+      :ensure t
+      :defer t
+      :bind (("C-c C-n" . flycheck-next-error)
+             ("C-c C-p" . flycheck-previous-error))
+      :diminish flycheck-mode
+      :init (global-flycheck-mode t))
+
+  (setq flycheck-global-modes '(not markdown-mode, not org-mode))
+
+  (setq flycheck-idle-change-delay 2)
+  (eval-after-load "flymake"
+    '(progn
+      (defun flymake-after-change-function (start stop len)
+        "Start syntax check for current buffer if it isn't already running."
+        ;; Do nothing, don't want to run checks until I save.
+        )))
+
+  (setq flymake-no-changes-timeout 5)
+
+  ;; python-mode likes to clobber flycheck-previous-error
+  ;; (define-key python-mode-map (kbd "C-c C-p") nil)
+#+END_SRC
+
+#+RESULTS:
+
+** Elpy
+[[https://github.com/jorgenschaefer/elpy][github link]] - currently disabled in favor of LSP mode
+#+BEGIN_SRC emacs-lisp
+  ;;       (elpy-enable)
+
+  ;;       ;; (define-key elpy-mode-map "\C-c ! C-n" 'elpy-flymake-next-error)
+  ;;       ;; (define-key elpy-mode-map "\C-c ! C-p" 'elpy-flymake-previous-error)
+
+  ;;     (when (require 'flycheck nil t)
+  ;;       (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  ;;       (add-hook 'elpy-mode-hook 'flycheck-mode))
+
+  ;;   (eval-after-load "elpy"
+  ;;     '(cl-dolist (key '("C-c C-n" "C-c C-p"))
+  ;;        (define-key elpy-mode-map (kbd key) nil)))
+  ;;       ;; For jupyter integration
+  ;;       ;; (setq python-shell-interpreter "jupyter"
+  ;;       ;;     python-shell-interpreter-args "console --simple-prompt")
+
+  ;; ;; disable elpy built-in indendation highlighting mode
+  ;; (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
+#+END_SRC
+
+#+RESULTS:
 ** C++ IDE stuff
 - Most taken from [[https://onze.io/emacs/c++/2017/03/16/emacs-cpp.html][here]]
 - Some recommendations on using ycmd with ros [[https://www.reddit.com/r/vim/comments/4835a7/youcompleteme_c_out_of_the_box/d0hthzr/][here]]
 - More on ycmd setup [[https://www.reddit.com/r/emacs/comments/7wzstc/emacs_as_a_c_ide_martin_sosics_blog/][here]]
+- [[https://www.gnu.org/software/emacs/manual/html_node/efaq/Customizing-C-and-C_002b_002b-indentation.html][Good link]] on changing indendation styles for C/C++
 #+BEGIN_SRC emacs-lisp
       ;; Snippets
       (use-package yasnippet
@@ -425,23 +572,6 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
     ;;     :init (company-ycmd-setup)
     ;;     :config (add-to-list 'company-backends (company-mode/backend-with-yas 'company-ycmd))))
 
-    ;; On-the-fly syntax checking
-    (use-package flycheck
-      :ensure t
-      :defer t
-      :diminish flycheck-mode
-      :init (global-flycheck-mode t))
-
-  (setq flycheck-global-modes '(not python-mode, not markdown-mode, not org-mode))
-
-  (eval-after-load "flymake"
-    '(progn
-      (defun flymake-after-change-function (start stop len)
-        "Start syntax check for current buffer if it isn't already running."
-        ;; Do nothing, don't want to run checks until I save.
-        )))
-
-      (setq flymake-no-changes-timeout 5)
     ;; (use-package flycheck-ycmd
     ;;   :commands (flycheck-ycmd-setup)
     ;;   :init (add-hook 'ycmd-mode-hook 'flycheck-ycmd-setup))
@@ -457,6 +587,8 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 
 ** Company-Box
 #+BEGIN_SRC emacs-lisp
+    ;; (use-package company-box
+    ;;   :hook (company-mode . company-box-mode))
   ;; (use-package company-box
   ;;   :after company
   ;;   :diminish
@@ -464,7 +596,6 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 #+END_SRC
 
 #+RESULTS:
-| company-box-mode | company-mode-set-explicitly |
 
 To customize:
 M-x customize-group [RET] company-box [RET]
@@ -624,7 +755,13 @@ Some good functions [[http://pragmaticemacs.com/emacs/read-your-rss-feeds-in-ema
 ;;(use-package magithub
 ;;  :after magit
 ;;  :config (magithub-feature-autoinject t))
+(require 'magit-todos)
+(magit-todos-mode 1)
 #+END_SRC
+
+#+RESULTS:
+: t
+
 ** symon system monitor -- deactivated
 #+BEGIN_SRC emacs-lisp
 ;;(use-package symon
@@ -977,8 +1114,10 @@ Too laggy ATM
           '((sequence "TODO" "IN-PROGRESS" "WAITING" "|" "DONE" "CANCELED")))
 
   (setq org-todo-keyword-faces
-    '(("TODO" . (:foreground "#ff39a3" :weight bold))
+    '(("IMMEDIATE" . (:foreground "#ff0000" :weight bold))
+      ("TODO" . (:foreground "#ff39a3" :weight bold))
   	("INPROGRESS" . "#E35DBF")
+      ("OPTIONAL" . "#ffa7db")
   	("IN-PROGRESS" . "#00A8E9")
       ("CANCELED" . "#555555")
   	("WAITING" . "pink")
@@ -999,6 +1138,10 @@ Too laggy ATM
 ;;(add-hook 'org-agenda-mode-hook (lambda () (org-gcal-sync) ))
 ;;(add-hook 'org-capture-after-finalize-hook (lambda () (org-gcal-sync) ))
 #+END_SRC
+
+#+RESULTS:
+| lambda | nil | (gcal-fetch-and-sync) |
+
 *** Agenda view
 Some good org stuff taken from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][here.]]
 #+BEGIN_SRC emacs-lisp
@@ -1179,8 +1322,12 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
            "* %?" :tree-type "week")
           ("m" "Meeting Notes" entry (file "~/Dropbox/org/meetings.org")
            "* %t %?\n" :prepend t)
-          ("k" "Investigate" entry (file+headline "~/Dropbox/org/learning.org" "To Learn")
+          ("k" "To Learn" entry (file+headline "~/Dropbox/org/learning.org" "To Learn")
           "* %?\n%T" :prepend t)
+          ("o" "Learned Topic Notes" entry (file+headline "~/Dropbox/org/learning.org" "Topics")
+          "* %?\n%T" :prepend t)
+          ("p" "Papers to read" entry (file+headline "~/Dropbox/org/paper_notes.org" "To Read")
+          "* %?\n** Authors: \n** Abstract: " :prepend t)
            ;; Links
            ("l" "Links")
           ("le" "Emacs Link" entry (file+headline "~/Dropbox/org/saved_links.org" "Emacs Links")
@@ -1215,6 +1362,8 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
 | a | Appointment | entry | (file ~/Dropbox/org/gcal.org) | * %? |
 
 
+
+
 *** Refile
 #+BEGIN_SRC emacs-lisp
   (setq gf-refile-targets
@@ -1231,7 +1380,7 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
         '((nil :maxlevel . 1)
           (gf-refile-targets :maxlevel . 1)))
 
-  ;; (define-key org-mode-map (kbd "C-c C-w") 'org-refile)
+  (define-key org-mode-map (kbd "C-c C-e") 'org-refile)
 #+END_SRC
 
 #+RESULTS:
@@ -1287,8 +1436,8 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
 ** Aggressive indent mode
 [[https://github.com/Malabarba/aggressive-indent-mode][Github link]]
 #+BEGIN_SRC emacs-lisp
-(global-aggressive-indent-mode 1)
-(add-to-list 'aggressive-indent-excluded-modes '(html-mode, org-mode, markdown-mode))
+  ;; (global-aggressive-indent-mode 1)
+  ;; (add-to-list 'aggressive-indent-excluded-modes '(html-mode, org-mode, markdown-mode))
 #+END_SRC
 
 #+RESULTS:
@@ -1310,13 +1459,58 @@ Capture templates. See [[http://cestlaz.github.io/posts/using-emacs-24-capture-2
   ;; (setq appt-message-warning-time 0)      ; 0 minute time before warning
   ;; (setq diary-file "~/Dropbox/Personal/emacs_appt_warnings.txt")
 #+END_SRC
-** Elpy
+** Emacs ipython noetbook
+[[http://millejoh.github.io/emacs-ipython-notebook/][Main setup page.]]
+*** Components:
+[[https://github.com/tkf/emacs-request/blob/master/request-deferred.el][Request-deferred]]:
 #+BEGIN_SRC emacs-lisp
-(elpy-enable)
+(require 'request)
+(require 'deferred)
 
-;; For jupyter integration
-;; (setq python-shell-interpreter "jupyter"
-;;     python-shell-interpreter-args "console --simple-prompt")
+(defun request-deferred (url &rest args)
+  "Send a request and return deferred object associated with it.
+
+Following deferred callback takes a response object regardless of
+the response result.  To make sure no error occurs during the
+request, check `request-response-error-thrown'.
+
+Arguments are the same as `request', but COMPLETE callback cannot
+be used as it is used for starting deferred callback chain.
+
+Example::
+
+  (require 'request-deferred)
+
+  (deferred:$
+    (request-deferred \"http://httpbin.org/get\" :parser 'json-read)
+    (deferred:nextc it
+      (lambda (response)
+        (message \"Got: %S\" (request-response-data response)))))
+"
+
+  (let* ((d (deferred:new #'identity))
+         (callback-post (apply-partially
+                         (lambda (d &rest args)
+                           (deferred:callback-post
+                             d (plist-get args :response)))
+                         d)))
+    ;; As `deferred:errorback-post' requires an error object to be
+    ;; posted, use `deferred:callback-post' for success and error
+    ;; cases.
+    (setq args (plist-put args :complete callback-post))
+    (apply #'request url args)
+    d))
+
+(provide 'request-deferred)
+
+#+END_SRC
+
+*** Main EIN config
+#+BEGIN_SRC emacs-lisp
+(require 'ein)
+(require 'ein-loaddefs)
+(require 'ein-notebook)
+(require 'ein-subpackages)
 #+END_SRC
 * Keybinds
 There are also a few of these sprinkled in above sections that are specific to certain modules.
@@ -1521,6 +1715,7 @@ There are also a few of these sprinkled in above sections that are specific to c
 : intelligent-close
 
 ** capture screenshot and import it into org
+[[https://github.com/dfeich/org-screenshot][This]] might be a good alternative
 #+BEGIN_SRC emacs-lisp
 (defun my-org-screenshot ()
   "Take a screenshot into a time stamped unique-named file in the
