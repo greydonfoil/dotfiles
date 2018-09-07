@@ -83,3 +83,5 @@ export ODE_DIR=/usr/local
 # if [ -f "${HOME}/mesh/code/catkin_ws/install/setup.bash" ]; then
 #     source ${HOME}/mesh/code/catkin_ws/install/setup.bash
 # fi
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash

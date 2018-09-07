@@ -91,7 +91,7 @@ alias mkdir="mkdir -pv"
 alias wget="wget -c"
 alias meshws="cd /home/gfoil/mesh/code/catkin_ws/src/meshnav-dev/src/ && cdpwd && screen"
 alias mesh="source ~/mesh/code/catkin_ws/install/setup.zsh"
-alias tut="source ~/ECR/tut/install/setup.zsh"
+alias tut="source ~/ecr/tut/install/setup.zsh"
 alias druid="source ~/ECR/druid/ces18_demo/catkin_ws/install/setup.zsh"
 alias ads="source ~/ECR/altering_driving_scenes/catkin_ws/devel/setup.zsh"
 alias em="source ~/projects/Evidence_Mesh/install/setup.zsh"
@@ -119,6 +119,8 @@ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig
 
 # virtualenvwrapper
 if [ -f /usr/local/bin/virtualenvwrapper.sh ]; then
+	export WORKON_HOME=$HOME/.virtualenvs
+	export PROJECT_HOME=$HOME/Devel
 	source /usr/local/bin/virtualenvwrapper.sh
 fi
 
@@ -146,20 +148,15 @@ fi
 # For mesh ODE
 export ODE_DIR=/usr/local
 
-# if [ -f "${HOME}/mesh/code/catkin_ws/install/setup.zsh" ]; then
-#     source ${HOME}/mesh/code/catkin_ws/install/setup.zsh
-# fi
-# if [ -f "${HOME}/projects/Evidence_Mesh/install/setup.zsh" ]; then
-#     source ${HOME}/projects/Evidence_Mesh/install/setup.zsh
-# fi
-
 export TERM=xterm-256color
 unsetopt share_history
 
 # For cuda:
-export PATH=/usr/local/cuda-8.0/bin:${PATH:+:${PATH}}
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64/
-export CUDA_HOME=/usr/local/cuda-8.0
+export PATH=/usr/local/cuda-9.0/bin:${PATH:+:${PATH}}
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64/
+export CUDA_HOME=/usr/local/cuda-9.0
+export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+# export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}:}/usr/local/cuda/extras/CUPTI/lib64
 
 # For Amazon AWS:
 export PATH=~/.local/bin:$PATH
@@ -175,3 +172,5 @@ fi
 # if [ "$0" = "/usr/sbin/lightdm-session" -a "$DESKTOP_SESSION" = "i3" ]; then
 #     export $(gnome-keyring-daemon -s)
 # fi
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

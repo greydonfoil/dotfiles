@@ -38,11 +38,10 @@ use-package loads the package if it's available. If not it logs to *Messages*. [
   ;;;(add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
 
   ;; uncomment this if you want to check package archives at init
-  ;;(package-initialize)
+  (package-initialize)
 #+END_SRC
 
 #+RESULTS:
-: ((gnu . https://orgmode.org/elpa/) (org . http://orgmode.org/elpa/) (elpa . https://elpa.gnu.org/packages/) (melpa . https://melpa.org/packages/) (melpa-stable . https://stable.melpa.org/packages/))
 
 ** Automatic package install
 Copied from [[https://github.com/larstvei/dot-emacs][here.]]
@@ -70,7 +69,7 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
             markdown-mode        ; Emacs Major mode for Markdown-formatted files
             ;;auto-complete        ; auto-complete
             company              ; auto-complete
-            company-box          ; box pop-up for company. requires emacs 26+
+            ;; company-box          ; box pop-up for company. requires emacs 26+
             ace-window           ; better window swapping
             ;; org-trello           ; integration between org and trello
             ;; org-ac               ; Auto-complete for org
@@ -96,6 +95,8 @@ Copied from [[https://github.com/larstvei/dot-emacs][here.]]
             bm                   ; visible bookmarks
             php-mode             ; php mode
             cmake-mode             ; cmake mode
+            yasnippets           ; code snippets
+            yasnippets-snippets  ; the actual snippet examples
             org))                ; Outline-based notes management and organizer
          ;; Remove all packages already installed
          (packages (remove-if 'package-installed-p packages)))
@@ -457,11 +458,9 @@ Spaceline [[https://github.com/TheBB/spaceline][github page]]
 ** Company-Box
 #+BEGIN_SRC emacs-lisp
   ;; (use-package company-box
+  ;;   :after company
+  ;;   :diminish
   ;;   :hook (company-mode . company-box-mode))
-(use-package company-box
-  :after company
-  :diminish
-  :hook (company-mode . company-box-mode))
 #+END_SRC
 
 #+RESULTS:
