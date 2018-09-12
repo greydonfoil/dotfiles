@@ -14,7 +14,8 @@
 
 ;; Loads up .emacs.d/settings.org
 (org-babel-load-file
- (expand-file-name "settings.org"
+ ;; (expand-file-name "settings.org"
+ (expand-file-name "settings_slim.org"
 				   user-emacs-directory))
 
 (custom-set-variables
@@ -54,7 +55,7 @@
  '(org-tags-column 0)
  '(package-selected-packages
    (quote
-	(json-mode company-lsp lsp-ui lsp-mode highlight-indent-guides magit-todos magit company-jedi treemacs ein skewer-mode websocket org-noter pdf-tools aggressive-indent edit-server-htmlize edit-server flatui-theme company-box org-projectile nxml-mode elfeed-org yasnippet-snippets yaml-mode xterm-color which-key web-mode visual-regexp-steroids validate use-package undo-tree treemacs-projectile symon spinner spacemacs-theme spaceline-all-the-icons smooth-scrolling rainbow-delimiters queue php-mode origami org-trello org-gcal org-bullets org-ac nyan-mode magithub jedi gruvbox-theme font-lock+ flycheck-ycmd eyebrowse esup elpy elfeed-goodies doom-themes diminish counsel company-ycmd cmake-mode clojure-mode bm badwolf-theme all-the-icons-ivy)))
+	(nxml-mode yasnippet-snippets xterm-color which-key visual-regexp validate use-package spacemacs-theme spaceline smooth-scrolling rainbow-delimiters org-projectile org-gcal org-bullets nyan-mode magithub magit-todos lsp-ui jedi ivy-hydra highlight-indent-guides eyebrowse elpy elfeed-org elfeed-goodies ein doom-themes diminish counsel company-lsp company-jedi company-box cmake-mode bm all-the-icons-ivy aggressive-indent ace-window)))
  '(paren-mode (quote paren) nil (paren))
  '(tab-stop-list
    (quote
